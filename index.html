@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Take Class - Website Kelas XII TKJ Jepang Elegan</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Noto Serif JP, Playfair Display, & Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Serif+JP:wght@300;400;600;700&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        serif: ['"Noto Serif JP"', 'serif'],
+                        playfair: ['"Playfair Display"', 'serif'],
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        washi: '#FAF6F0',
+                        sumi: '#1C1C1C',
+                        bamboo: '#1E4620',
+                        moss: '#4E7041',
+                        gold: '#D4AF37',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            background-color: #FAF6F0;
+            color: #1C1C1C;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Japanese Washi Paper Texture overlay */
+        .washi-bg::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0.04;
+            pointer-events: none;
+            z-index: 10;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        /* Ambient Bamboo Wind Canvas */
+        #bamboo-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #FAF6F0;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1E4620;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #122B14;
+        }
+
+        /* Smooth scrolling on touch devices */
+        .smooth-scroll {
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Japanese Kamon (Crest) Spin */
+        .kamon-spin {
+            animation: spin 20s linear infinite;
+        }
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Shoji Sliding Doors Animation */
+        .shoji-door-left {
+            transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+        .shoji-door-right {
+            transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+        .shoji-open .shoji-door-left {
+            transform: translateX(-100%);
+        }
+        .shoji-open .shoji-door-right {
+            transform: translateX(100%);
+        }
+
+        /* Premium Gold Border accents */
+        .gold-border-corner {
+            position: relative;
+        }
+        .gold-border-corner::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 15px; height: 15px;
+            border-top: 2px solid #D4AF37;
+            border-left: 2px solid #D4AF37;
+        }
+        .gold-border-corner::after {
+            content: '';
+            position: absolute;
+            bottom: 0; right: 0; width: 15px; height: 15px;
+            border-bottom: 2px solid #D4AF37;
+            border-right: 2px solid #D4AF37;
+        }
+    </style>
+</head>
+<body class="washi-bg min-h-screen flex flex-col relative">
+
+    <!-- Ambient background canvas (Bamboo leaves and data sparkles) -->
+    <canvas id="bamboo-canvas"></canvas>
+
+    <nav class="sticky top-0 z-40 bg-[#FAF6F0]/90 backdrop-blur-md border-b border-gray-200 py-4 px-6 md:px-12 flex justify-between items-center">
+        <div class="flex items-center space-x-3">
+            <!-- Japanese Flag / Kamon Concept (Bamboo Forest Crest) -->
+            <div class="w-10 h-10 rounded-full border-2 border-bamboo flex items-center justify-center bg-white shadow-sm overflow-hidden relative">
+                <div class="w-6 h-6 rounded-full bg-bamboo flex items-center justify-center">
+                    <i class="fa-solid fa-leaf text-[9px] text-gold"></i>
+                </div>
+            </div>
+            <div>
+                <span class="font-serif font-bold text-xl tracking-wider text-sumi">竹のクラス</span>
+                <span class="block text-xs uppercase tracking-widest text-gray-500 font-sans">Take no Kurasu</span>
+            </div>
+        </div>
+
+        <!-- Menu Desktop -->
+        <div class="hidden md:flex items-center space-x-8 font-serif font-medium text-sumi">
+            <button onclick="scrollToSection('beranda')" class="hover:text-bamboo transition duration-300 relative group py-1">
+                Beranda
+                <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-bamboo transition-all duration-300 group-hover:w-full"></span>
+            </button>
+            <button onclick="scrollToSection('kegiatan')" class="hover:text-bamboo transition duration-300 relative group py-1">
+                Kegiatan
+                <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-bamboo transition-all duration-300 group-hover:w-full"></span>
+            </button>
+            <button onclick="scrollToSection('siswa')" class="hover:text-bamboo transition duration-300 relative group py-1">
+                Siswa
+                <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-bamboo transition-all duration-300 group-hover:w-full"></span>
+            </button>
+            <button onclick="openAdminPanel()" class="bg-sumi text-white hover:bg-bamboo px-5 py-2 rounded-full font-sans text-sm transition-all duration-300 flex items-center space-x-2 shadow-md">
+                <i class="fa-solid fa-yin-yang kamon-spin text-gold text-xs"></i>
+                <span>Dashboard Admin</span>
+            </button>
+        </div>
+
+        <!-- Menu Mobile Toggle -->
+        <div class="md:hidden">
+            <button onclick="toggleMobileMenu()" class="text-sumi focus:outline-none p-2">
+                <i id="menu-icon" class="fa-solid fa-bars text-2xl"></i>
+            </button>
+        </div>
+    </nav>
+
+    <div id="mobile-menu" class="hidden fixed inset-0 z-30 bg-[#FAF6F0] flex-col justify-center items-center space-y-8 font-serif text-2xl text-sumi">
+        <button onclick="scrollToSection('beranda'); toggleMobileMenu()" class="hover:text-bamboo transition">Beranda</button>
+        <button onclick="scrollToSection('kegiatan'); toggleMobileMenu()" class="hover:text-bamboo transition">Kegiatan</button>
+        <button onclick="scrollToSection('siswa'); toggleMobileMenu()" class="hover:text-bamboo transition">Siswa</button>
+        <button onclick="openAdminPanel(); toggleMobileMenu()" class="bg-sumi text-white hover:bg-bamboo px-6 py-3 rounded-full font-sans text-base transition-all flex items-center space-x-2 shadow-md">
+            <i class="fa-solid fa-yin-yang text-gold"></i>
+            <span>Dashboard Admin</span>
+        </button>
+    </div>
+
+    <section id="beranda" class="relative min-h-[85vh] flex flex-col items-center justify-center text-center px-4 md:px-12 py-16 overflow-hidden">
+        <!-- Big Kanji Background decoration (Bamboo Kanji) -->
+        <div class="absolute inset-0 flex items-center justify-center select-none opacity-[0.03] z-0 pointer-events-none">
+            <h1 class="font-serif text-[40vw] font-bold text-sumi leading-none">竹</h1>
+        </div>
+
+        <!-- Elegant Japanese Torii Arc Motif & Slogan -->
+        <div class="z-10 max-w-4xl mx-auto space-y-6">
+            <div class="inline-flex items-center space-x-2 border-y border-gold/40 py-2 px-6 mb-4">
+                <span class="text-gold text-sm tracking-widest uppercase font-sans">Selamat Datang di Portal Kelas</span>
+            </div>
+            
+            <h1 class="font-serif text-5xl md:text-8xl font-bold text-sumi tracking-wider leading-tight">
+                XII <span class="text-bamboo font-light">TKJ</span> <span class="font-playfair italic font-medium text-moss">Take</span>
+            </h1>
+            
+            <p class="max-w-2xl mx-auto text-gray-700 md:text-lg leading-relaxed font-sans font-light">
+                Membangun konektivitas global yang kokoh bernapaskan filosofi <span class="italic text-bamboo font-medium">"Take" (Bambu)</span> — fleksibel beradaptasi namun kokoh berdiri, berpadu dengan ketekunan teknologi <span class="italic text-bamboo font-medium">"Kaizen"</span> untuk terus berprogres setiap hari.
+            </p>
+
+            <!-- Decorative Traditional Seigaiha Line -->
+            <div class="flex justify-center items-center space-x-4 py-6">
+                <div class="h-[1px] w-20 bg-gold/50"></div>
+                <div class="w-4 h-4 rounded-full border-2 border-bamboo bg-white flex items-center justify-center">
+                    <div class="w-1.5 h-1.5 rounded-full bg-gold"></div>
+                </div>
+                <div class="h-[1px] w-20 bg-gold/50"></div>
+            </div>
+
+            <div class="flex flex-wrap gap-4 justify-center">
+                <button onclick="scrollToSection('kegiatan')" class="bg-bamboo text-white hover:bg-[#122B14] px-8 py-3.5 rounded-sm font-serif tracking-widest transition duration-300 shadow-lg flex items-center space-x-3">
+                    <span>LIHAT KEGIATAN</span>
+                    <i class="fa-solid fa-arrow-right text-xs"></i>
+                </button>
+                <button onclick="scrollToSection('siswa')" class="border border-sumi text-sumi hover:bg-sumi hover:text-white px-8 py-3.5 rounded-sm font-serif tracking-widest transition duration-300">
+                    DAFTAR SISWA
+                </button>
+            </div>
+        </div>
+
+        <!-- Class Quick Stats -->
+        <div class="z-10 grid grid-cols-3 gap-4 md:gap-12 mt-16 max-w-3xl w-full border-t border-gray-200 pt-8">
+            <div class="text-center">
+                <h3 id="stat-siswa" class="font-serif text-3xl md:text-4xl font-bold text-bamboo">0</h3>
+                <p class="text-xs md:text-sm text-gray-500 uppercase tracking-wider font-sans mt-1">Siswa Terdaftar</p>
+            </div>
+            <div class="text-center border-x border-gray-200">
+                <h3 id="stat-kegiatan" class="font-serif text-3xl md:text-4xl font-bold text-bamboo">0</h3>
+                <p class="text-xs md:text-sm text-gray-500 uppercase tracking-wider font-sans mt-1">Kegiatan Kelas</p>
+            </div>
+            <div class="text-center">
+                <h3 class="font-serif text-3xl md:text-4xl font-bold text-bamboo">A+</h3>
+                <p class="text-xs md:text-sm text-gray-500 uppercase tracking-wider font-sans mt-1">Target Akreditasi</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="kegiatan" class="py-20 bg-white/50 border-y border-gray-100 px-6 md:px-12 relative z-10">
+        <div class="max-w-7xl mx-auto">
+            <!-- Header Section -->
+            <div class="text-center mb-16">
+                <span class="font-serif text-bamboo tracking-widest text-lg font-bold block mb-2">// 活 動</span>
+                <h2 class="font-serif text-3xl md:text-5xl font-bold text-sumi tracking-wider">Kegiatan & Upacara Jaringan</h2>
+                <div class="w-16 h-1 bg-bamboo mx-auto mt-4 rounded-full"></div>
+                <p class="text-gray-500 mt-4 max-w-md mx-auto text-sm">Dokumentasi momen berharga, kerja keras, dan keceriaan bersama di Kelas XII TKJ Take.</p>
+            </div>
+
+            <!-- Categories Filter -->
+            <div class="flex flex-wrap justify-center gap-3 mb-12" id="kegiatan-filters">
+                <button onclick="filterKegiatan('Semua')" class="filter-btn active bg-sumi text-white px-5 py-2 rounded-full text-xs md:text-sm tracking-wider font-serif uppercase transition">Semua</button>
+                <button onclick="filterKegiatan('Akademik')" class="filter-btn border border-gray-300 hover:border-bamboo px-5 py-2 rounded-full text-xs md:text-sm tracking-wider font-serif uppercase transition">Akademik</button>
+                <button onclick="filterKegiatan('Kebudayaan')" class="filter-btn border border-gray-300 hover:border-bamboo px-5 py-2 rounded-full text-xs md:text-sm tracking-wider font-serif uppercase transition">Kebudayaan</button>
+                <button onclick="filterKegiatan('Olahraga')" class="filter-btn border border-gray-300 hover:border-bamboo px-5 py-2 rounded-full text-xs md:text-sm tracking-wider font-serif uppercase transition">Olahraga</button>
+            </div>
+
+            <!-- Kegiatan Grid -->
+            <div id="kegiatan-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Dynamic Content injected here -->
+            </div>
+        </div>
+    </section>
+
+    <section id="siswa" class="py-20 px-6 md:px-12 relative z-10">
+        <div class="max-w-7xl mx-auto">
+            <!-- Header Section -->
+            <div class="text-center mb-16">
+                <span class="font-serif text-bamboo tracking-widest text-lg font-bold block mb-2">// 学 生</span>
+                <h2 class="font-serif text-3xl md:text-5xl font-bold text-sumi tracking-wider">Daftar Anggota Take</h2>
+                <div class="w-16 h-1 bg-bamboo mx-auto mt-4 rounded-full"></div>
+                <p class="text-gray-500 mt-4 max-w-md mx-auto text-sm">Bertemu dengan talenta berbakat, arsitek jaringan, dan calon ahli infrastruktur teknologi.</p>
+            </div>
+
+            <!-- Search and Filter Bar -->
+            <div class="max-w-xl mx-auto mb-12 flex flex-col md:flex-row gap-4">
+                <div class="relative flex-grow">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </span>
+                    <input type="text" id="siswa-search-input" onkeyup="searchSiswa()" placeholder="Cari nama atau haiku siswa..." class="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-lg focus:outline-none focus:border-bamboo transition shadow-sm font-sans text-sm">
+                </div>
+                <select id="siswa-gender-filter" onchange="searchSiswa()" class="px-4 py-3 bg-white border border-gray-200 rounded-lg focus:outline-none focus:border-bamboo font-sans text-sm shadow-sm">
+                    <option value="Semua">Semua Gender</option>
+                    <option value="Laki-laki">Laki-laki</option>
+                    <option value="Perempuan">Perempuan</option>
+                </select>
+            </div>
+
+            <!-- Siswa Grid -->
+            <div id="siswa-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Dynamic Content injected here -->
+            </div>
+        </div>
+    </section>
+
+    <div id="admin-shoji-overlay" class="fixed inset-0 z-50 flex items-center justify-center pointer-events-none opacity-0 transition-opacity duration-300">
+        <!-- Overlay Background -->
+        <div class="absolute inset-0 bg-sumi/70 backdrop-blur-sm"></div>
+
+        <!-- Shoji Left Gate -->
+        <div class="shoji-door-left absolute top-0 left-0 w-1/2 h-full bg-[#FCF8F2] border-r-4 border-sumi flex items-center justify-end pr-8 z-10 shadow-2xl">
+            <!-- Shoji Frame wood design -->
+            <div class="absolute inset-4 border border-[#8B4513]/20 grid grid-cols-3 grid-rows-6 pointer-events-none opacity-20">
+                <div class="border border-[#8B4513]/20"></div><div class="border border-[#8B4513]/20"></div><div class="border border-[#8B4513]/20"></div>
+                <div class="border border-[#8B4513]/20"></div><div class="border border-[#8B4513]/20"></div><div class="border border-[#8B4513]/20"></div>
+                <div class="border border-[#8B4513]/20"></div><div class="border border-[#8B4513]/20"></div><div class="border border-[#8B4513]/20"></div>
+                <div class="border border-[#8B4513]/20"></div><div class="border border-[#8B4513]/20"></div><div class="border border-[#8B4513]/20"></div>
+                <div class="border border-[#8B4513]/20"></div><div class="border border-[#8B4513]/20"></div><div class="border border-[#8B4513]/20"></div>
+                <div class="border border-[#8B4513]/20"></div><div class="border border-[#8B4513]/20"></div><div class="border border-[#8B4513]/20"></div>
+            </div>
+            <div class="text-right z-20 select-none">
+                <span class="font-serif text-5xl md:text-7xl font-bold text-sumi/10">管理</span>
+            </div>
+        </div>
+
+        <!-- Shoji Right Gate -->
+        <div class="shoji-door-right absolute top-0 right-0 w-1/2 h-full bg-[#FCF8F2] border-l-4 border-sumi flex items-center pl-8 z-10 shadow-2xl">
+            <!-- Shoji Frame wood design -->
+            <div class="absolute inset-4 border border-[#8B4513]/20 grid grid-cols-3 grid-rows-6 pointer-events-none opacity-20">
+                <div class="border border-[#8B4513]/20"></div><div class="border border-[#8B4513]/20"></div><div class="border border-[#8B4513]/20"></div>
+                <div class="border border-[#8B4513]/20"></div><div class="border border-[#8B4513]/20"></div><div class="border border-[#8B4513]/20"></div>
+                <div class="border border-[#8B4513]/20"></div><div class="border border-[#8B4513]/20"></div><div class="border border-[#8B4513]/20"></div>
+                <div class="border border-[#8B4513]/20"></div><div class="border border-[#8B4513]/20"></div><div class="border border-[#8B4513]/20"></div>
+                <div class="border border-[#8B4513]/20"></div><div class="border border-[#8B4513]/20"></div><div class="border border-[#8B4513]/20"></div>
+                <div class="border border-[#8B4513]/20"></div><div class="border border-[#8B4513]/20"></div><div class="border border-[#8B4513]/20"></div>
+            </div>
+            <div class="text-left z-20 select-none">
+                <span class="font-serif text-5xl md:text-7xl font-bold text-sumi/10">画面</span>
+            </div>
+        </div>
+
+        <!-- Login Card Center -->
+        <div id="login-card" class="z-20 bg-white p-8 md:p-10 rounded-sm shadow-2xl max-w-md w-full mx-4 border-t-4 border-bamboo relative gold-border-corner transform scale-90 opacity-0 transition-all duration-300">
+            <button onclick="closeAdminPanel()" class="absolute top-4 right-4 text-gray-400 hover:text-bamboo transition duration-200">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            <div class="text-center mb-6">
+                <span class="font-serif text-xs text-bamboo tracking-widest uppercase block mb-1">Gerbang Masuk Admin</span>
+                <h3 class="font-serif text-2xl font-bold text-sumi">Autentikasi Shoji</h3>
+                <div class="w-12 h-0.5 bg-bamboo mx-auto mt-2"></div>
+            </div>
+
+            <form onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs uppercase tracking-wider text-gray-500 font-medium mb-1.5">Sandi Akses Kelas</label>
+                    <input type="password" id="admin-pass-field" placeholder="Masukkan sandi..." class="w-full px-4 py-3 bg-washi border border-gray-200 focus:outline-none focus:border-bamboo rounded-sm text-sm" required>
+                    <p class="text-[10px] text-gray-400 mt-1 italic">*masukan sandi: <span class="font-bold text-bamboo"></span></p>
+                </div>
+                <button type="submit" class="w-full bg-sumi text-white hover:bg-bamboo py-3 rounded-sm font-serif tracking-widest transition duration-300 flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-key text-gold"></i>
+                    <span>MASUK DASBOR</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard Section -->
+    <section id="admin-dashboard" class="hidden fixed inset-0 z-50 bg-[#FAF6F0] overflow-y-auto smooth-scroll">
+        <div class="min-h-screen p-4 md:p-10 flex flex-col">
+            <!-- Admin Dashboard Header -->
+            <div class="max-w-7xl w-full mx-auto flex flex-col md:flex-row justify-between items-start md:items-center border-b border-gray-200 pb-6 mb-8 gap-4">
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 bg-bamboo rounded-full flex items-center justify-center text-white text-2xl shadow-md">
+                        <i class="fa-solid fa-screwdriver-wrench text-gold"></i>
+                    </div>
+                    <div>
+                        <span class="text-xs tracking-widest text-bamboo uppercase font-sans">Panel Kontrol Utama</span>
+                        <h2 class="font-serif text-2xl md:text-3xl font-bold text-sumi">Dashboard Take Admin</h2>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button onclick="openFormModal('siswa')" class="bg-[#2E7D32] hover:bg-[#1B5E20] text-white px-4 py-2 rounded-sm text-xs font-sans font-medium transition flex items-center space-x-2 shadow-sm">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Siswa Baru</span>
+                    </button>
+                    <button onclick="openFormModal('kegiatan')" class="bg-bamboo hover:bg-[#122B14] text-white px-4 py-2 rounded-sm text-xs font-sans font-medium transition flex items-center space-x-2 shadow-sm">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Kegiatan Baru</span>
+                    </button>
+                    <button onclick="logoutAdmin()" class="border border-sumi text-sumi hover:bg-sumi hover:text-white px-4 py-2 rounded-sm text-xs transition">
+                        Keluar Panel
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dashboard Body Workspace -->
+            <div class="max-w-7xl w-full mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 flex-grow">
+                <!-- Activities Administration -->
+                <div class="bg-white p-6 rounded-md shadow-sm border border-gray-200">
+                    <div class="flex justify-between items-center border-b border-gray-100 pb-4 mb-4">
+                        <h3 class="font-serif text-lg font-bold text-sumi flex items-center space-x-2">
+                            <i class="fa-solid fa-camera-retro text-bamboo"></i>
+                            <span>Kelola Kegiatan Jaringan</span>
+                        </h3>
+                        <span id="admin-kegiatan-badge" class="bg-gray-100 text-gray-700 text-xs px-2.5 py-1 rounded-full font-bold">0</span>
+                    </div>
+                    <!-- Mini Kegiatan List -->
+                    <div id="admin-kegiatan-list" class="space-y-3 max-h-[550px] overflow-y-auto pr-2">
+                        <!-- Dynamic Items -->
+                    </div>
+                </div>
+
+                <!-- Students Administration -->
+                <div class="bg-white p-6 rounded-md shadow-sm border border-gray-200">
+                    <div class="flex justify-between items-center border-b border-gray-100 pb-4 mb-4">
+                        <h3 class="font-serif text-lg font-bold text-sumi flex items-center space-x-2">
+                            <i class="fa-solid fa-graduation-cap text-bamboo"></i>
+                            <span>Kelola Daftar Siswa</span>
+                        </h3>
+                        <span id="admin-siswa-badge" class="bg-gray-100 text-gray-700 text-xs px-2.5 py-1 rounded-full font-bold">0</span>
+                    </div>
+                    <!-- Mini Student List -->
+                    <div id="admin-siswa-list" class="space-y-3 max-h-[550px] overflow-y-auto pr-2">
+                        <!-- Dynamic Items -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Generic Admin Modals (Add / Edit Form with scroll compatibility) -->
+    <div id="crud-modal" class="fixed inset-0 z-[60] flex items-center justify-center hidden p-4">
+        <div class="absolute inset-0 bg-sumi/60 backdrop-blur-sm" onclick="closeFormModal()"></div>
+        <div class="bg-white p-6 md:p-8 rounded-sm shadow-2xl max-w-lg w-full border-t-4 border-gold z-10 gold-border-corner max-h-[85vh] overflow-y-auto smooth-scroll">
+            <div class="flex justify-between items-center mb-6">
+                <h3 id="modal-title" class="font-serif text-xl font-bold text-sumi">Form Edit</h3>
+                <button onclick="closeFormModal()" class="text-gray-400 hover:text-bamboo transition">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Dynamic Form will be compiled here -->
+            <form id="crud-form" onsubmit="handleFormSubmit(event)" class="space-y-4 pb-2">
+                <!-- Injected forms -->
+            </form>
+        </div>
+    </div>
+
+    <!-- Custom Japanese Styled Elegant Confirmation Dialog -->
+    <div id="custom-confirm-modal" class="fixed inset-0 z-[100] flex items-center justify-center hidden p-4">
+        <div class="absolute inset-0 bg-sumi/80 backdrop-blur-sm"></div>
+        <div class="bg-white p-6 md:p-8 rounded-sm shadow-2xl max-w-md w-full border-t-4 border-bamboo z-10 gold-border-corner text-center">
+            <div class="w-16 h-16 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3 class="font-serif text-lg font-bold text-sumi mb-2">Hapus Data Permanen?</h3>
+            <p class="text-gray-500 text-sm mb-6 font-sans">Tindakan ini akan menghapus data terpilih secara selamanya dari sistem. Anda yakin?</p>
+            <div class="flex justify-center space-x-3">
+                <button id="confirm-cancel-btn" class="px-5 py-2.5 border border-gray-200 text-gray-700 hover:bg-gray-100 rounded text-sm font-medium transition">Batal</button>
+                <button id="confirm-ok-btn" class="px-6 py-2.5 bg-bamboo hover:bg-[#122B14] text-white rounded text-sm font-medium transition shadow">Ya, Hapus</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Elegant Toast Notification Box -->
+    <div id="toast-box" class="fixed bottom-6 right-6 z-[70] transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="bg-sumi text-white border-l-4 border-bamboo py-3 px-6 rounded shadow-xl flex items-center space-x-3">
+            <i id="toast-icon" class="fa-solid fa-circle-check text-gold"></i>
+            <span id="toast-msg" class="text-xs md:text-sm font-sans font-light">Tindakan berhasil!</span>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="mt-auto bg-sumi text-washi/70 py-12 px-6 border-t-4 border-bamboo text-center font-sans font-light text-xs md:text-sm relative z-10">
+        <div class="max-w-4xl mx-auto space-y-6">
+            <div class="flex justify-center items-center space-x-4">
+                <div class="w-1.5 h-1.5 bg-bamboo rounded-full"></div>
+                <span class="font-serif tracking-widest text-white">直 節 堅 剛</span>
+                <span class="text-gray-500 font-sans text-xs">Chokusetsu Kengō (Kejujuran & Keteguhan)</span>
+                <div class="w-1.5 h-1.5 bg-bamboo rounded-full"></div>
+            </div>
+            <p class="max-w-md mx-auto leading-relaxed">
+                "Lurus, Berbuku, Kokoh, Tangguh." Nilai dasar filosofi bambu Jepang yang XII TKJ Take pegang sebagai pondasi ketahanan pertemanan dan kemajuan ilmu.
+            </p>
+            <div class="pt-4 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p>&copy; 2026 XII TKJ Take. Dirancang dengan cinta berpadu estetika Nihon.</p>
+                <div class="flex space-x-4 text-white">
+                    <a href="#" class="hover:text-bamboo transition"><i class="fa-brands fa-instagram text-lg"></i></a>
+                    <a href="#" class="hover:text-bamboo transition"><i class="fa-brands fa-tiktok text-lg"></i></a>
+                    <a href="#" class="hover:text-bamboo transition"><i class="fa-brands fa-youtube text-lg"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Supabase Client Setup -->
+    <script type="module">
+        import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+        // Konfigurasi Supabase project kamu
+        const SUPABASE_URL = "https://wtqhrqpgohunigprfjyo.supabase.co";
+        const SUPABASE_KEY = "sb_publishable_Tyv24MKRWS5-3O09mYeDkA_h2oinKkS";
+        const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // Core State
+        let kegiatanData = [];
+        let siswaData = [];
+        let currentActiveKegiatanFilter = "Semua";
+        let editTargetType = ""; 
+        let editTargetId = null;
+
+        // Custom Confirmation State Guard
+        let currentConfirmResolve = null;
+
+        // Ambient system using Canvas
+        const canvas = document.getElementById('bamboo-canvas');
+        const ctx = canvas.getContext('2d');
+        let elements = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class BambooWindElement {
+            constructor() {
+                this.reset();
+                this.y = Math.random() * canvas.height; 
+            }
+
+            reset() {
+                // Meningkatkan frekuensi kelopak sakura agar lebih dominan
+                const rand = Math.random();
+                if (rand < 0.5) {
+                    this.type = 'sakura';
+                } else if (rand < 0.8) {
+                    this.type = 'leaf';
+                } else {
+                    this.type = 'spark';
+                }
+                
+                // Mulai dari posisi acak di atas layar
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * -50 - 10; 
+                
+                this.r = Math.random() * 3 + 2; 
+                this.speedX = Math.random() * 0.4 - 0.2; // Sedikit drift horizontal
+                this.speedY = Math.random() * 1.5 + 0.8; // Kecepatan jatuh ke bawah
+                this.swing = Math.random() * 0.8;
+                this.swingSpeed = Math.random() * 0.04 + 0.01;
+                this.swingStep = Math.random() * 100;
+                this.opacity = Math.random() * 0.5 + 0.3;
+                this.rotation = Math.random() * Math.PI;
+                this.rotationSpeed = Math.random() * 0.02 - 0.01;
+            }
+
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation);
+                
+                if (this.type === 'leaf') {
+                    ctx.beginPath();
+                    ctx.fillStyle = `rgba(78, 112, 65, ${this.opacity})`;
+                    ctx.moveTo(0, 0);
+                    ctx.bezierCurveTo(-this.r * 0.8, -this.r * 2.5, -this.r * 1.2, this.r * 0.5, 0, this.r * 4);
+                    ctx.bezierCurveTo(this.r * 1.2, this.r * 0.5, this.r * 0.8, -this.r * 2.5, 0, 0);
+                    ctx.fill();
+                } else if (this.type === 'sakura') {
+                    ctx.beginPath();
+                    ctx.fillStyle = `rgba(255, 183, 197, ${this.opacity + 0.2})`;
+                    ctx.moveTo(0, 0);
+                    ctx.bezierCurveTo(-this.r * 1.4, -this.r * 1.4, -this.r * 1.8, this.r * 0.5, 0, this.r * 2);
+                    ctx.bezierCurveTo(this.r * 1.8, this.r * 0.5, this.r * 1.4, -this.r * 1.4, 0, 0);
+                    ctx.fill();
+                } else {
+                    ctx.beginPath();
+                    ctx.arc(0, 0, this.r * 0.4, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(212, 175, 55, ${this.opacity + 0.2})`;
+                    ctx.fill();
+                }
+                
+                ctx.restore();
+            }
+
+            update() {
+                // Gerakan jatuh vertikal dengan ayunan lembut
+                this.x += this.speedX + Math.sin(this.swingStep) * this.swing;
+                this.y += this.speedY; 
+                this.swingStep += this.swingSpeed;
+                this.rotation += this.rotationSpeed;
+
+                // Reset posisi ke atas saat sudah melewati bawah layar
+                if (this.y > canvas.height + 20) {
+                    this.reset();
+                    this.y = -20; // Muncul kembali dari atas
+                }
+            }
+        }
+
+        function createElements() {
+            const maxElements = Math.min(50, Math.floor(canvas.width / 25)); 
+            elements = [];
+            for (let i = 0; i < maxElements; i++) {
+                elements.push(new BambooWindElement());
+            }
+        }
+        createElements();
+
+        function animateBambooForest() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            elements.forEach(el => {
+                el.update();
+                el.draw();
+            });
+            requestAnimationFrame(animateBambooForest);
+        }
+
+        async function connectCloudSync() {
+            await loadSiswa();
+            await loadKegiatan();
+
+            // Realtime: setiap ada perubahan di tabel siswa, muat ulang otomatis
+            supabase.channel('public:siswa')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'siswa' }, () => {
+                    loadSiswa();
+                })
+                .subscribe();
+
+            // Realtime: setiap ada perubahan di tabel kegiatan, muat ulang otomatis
+            supabase.channel('public:kegiatan')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'kegiatan' }, () => {
+                    loadKegiatan();
+                })
+                .subscribe();
+        }
+
+        async function loadSiswa() {
+            const { data, error } = await supabase.from('siswa').select('*').order('created_at', { ascending: true });
+            if (error) {
+                console.error("Error reading siswa table:", error);
+                return;
+            }
+            if (!data || data.length === 0) {
+                await seedDefaultSiswa();
+                return;
+            }
+            siswaData = data;
+            renderAll();
+        }
+
+        async function loadKegiatan() {
+            const { data, error } = await supabase.from('kegiatan').select('*').order('created_at', { ascending: true });
+            if (error) {
+                console.error("Error reading kegiatan table:", error);
+                return;
+            }
+            if (!data || data.length === 0) {
+                await seedDefaultKegiatan();
+                return;
+            }
+            kegiatanData = data;
+            renderAll();
+        }
+
+        async function seedDefaultSiswa() {
+            const initialSiswa = [
+                { nama: "Rian Takeshi", panggilan: "Rian", gender: "Laki-laki", peran: "Taichou (Ketua Kelas)", haiku: "Kabel terbentang, menyulam jaring sunyi, dunia terhubung.", avatar: "https://placehold.co/150/1e4620/d4af37?text=Takeshi" },
+                { nama: "Aiko Lestari", panggilan: "Aiko", gender: "Perempuan", peran: "Sekretaris / Cyber Security", haiku: "Sandi rahasia, bagai angin di bambu, tak tampak, aman.", avatar: "https://placehold.co/150/4e7041/ffffff?text=Aiko" },
+                { nama: "Kenji Pratama", panggilan: "Kenji", gender: "Laki-laki", peran: "SysAdmin / Network Lead", haiku: "Server menyala, mengalirkan cahaya, mimpi melesat.", avatar: "https://placehold.co/150/1e4620/d4af37?text=Kenji" },
+                { nama: "Yuki Handayani", panggilan: "Yuki", gender: "Perempuan", peran: "Bendahara / Data Specialist", haiku: "Data tersusun, angka-angka berkilau, laksana embun.", avatar: "https://placehold.co/150/4e7041/ffffff?text=Yuki" },
+                { nama: "Daichi Wijaya", panggilan: "Daichi", gender: "Laki-laki", peran: "Hardware Engineer", haiku: "Sirkuit rumit, jiwa bernyawa logam, tumbuh meninggi.", avatar: "https://placehold.co/150/1e4620/d4af37?text=Daichi" },
+                { nama: "Natsumi Putri", panggilan: "Natsumi", gender: "Perempuan", peran: "UI/UX & Shodo Designer", haiku: "Kuas digital, melukis masa depan, indah harmoni.", avatar: "https://placehold.co/150/4e7041/ffffff?text=Natsumi" }
+            ];
+            const { error } = await supabase.from('siswa').insert(initialSiswa);
+            if (error) {
+                console.error("Error seeding siswa:", error);
+                return;
+            }
+            await loadSiswa();
+        }
+
+        async function seedDefaultKegiatan() {
+            const initialKegiatan = [
+                { judul: "Matsuri Jaringan & Robotika", kategori: "Kebudayaan", deskripsi: "Membangun stan bertema Kedai Teh Pintar Kyoto, memamerkan integrasi IOT penyaji ocha otomatis yang dikontrol via Wi-Fi lokal buatan siswa.", tanggal: "12 Maret 2026", gambar: "https://placehold.co/600x400/1e4620/d4af37?text=Tech+Matsuri" },
+                { judul: "Olimpiade Cyber Security Seigaiha", kategori: "Akademik", deskripsi: "Siswa TKJ Take berhasil memenangkan medali perak dalam kompetisi penahanan keamanan jaringan (Capture The Flag) regional.", tanggal: "28 April 2026", gambar: "https://placehold.co/600x400/4e7041/ffffff?text=Cyber+Sec" },
+                { judul: "Kendo & Network Combat", kategori: "Olahraga", deskripsi: "Membangun stamina dan fokus bela diri spiritual kendo sekaligus mempraktekkan ketangkasan simulasi instalasi infrastruktur kabel secara cepat.", tanggal: "05 Mei 2026", gambar: "https://placehold.co/600x400/1c1c1c/d4af37?text=Kendo+Combat" },
+                { judul: "Bakti Teknologi Hijau (E-Waste)", kategori: "Kebudayaan", deskripsi: "Mengumpulkan limbah elektronik sekolah dan menyusunnya kembali menjadi instalasi karya seni lampion bambu digital ramah lingkungan.", tanggal: "15 Mei 2026", gambar: "https://placehold.co/600x400/1e4620/ffffff?text=Green+IT" }
+            ];
+            const { error } = await supabase.from('kegiatan').insert(initialKegiatan);
+            if (error) {
+                console.error("Error seeding kegiatan:", error);
+                return;
+            }
+            await loadKegiatan();
+        }
+
+        // UI Render Functions
+        function renderAll() {
+            renderKegiatan();
+            renderSiswa();
+            renderStats();
+            renderAdminDashboard();
+        }
+
+        function renderStats() {
+            document.getElementById('stat-siswa').innerText = siswaData.length;
+            document.getElementById('stat-kegiatan').innerText = kegiatanData.length;
+        }
+
+        function renderKegiatan() {
+            const container = document.getElementById('kegiatan-container');
+            container.innerHTML = "";
+
+            const filtered = currentActiveKegiatanFilter === "Semua" 
+                ? kegiatanData 
+                : kegiatanData.filter(item => item.kategori === currentActiveKegiatanFilter);
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full text-center py-12">
+                        <i class="fa-solid fa-wind text-gray-300 text-5xl mb-4"></i>
+                        <p class="font-serif italic text-gray-500">Tidak ada kegiatan di kategori ini.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            filtered.forEach(item => {
+                const badgeColor = item.kategori === 'Akademik' ? 'bg-blue-100 text-blue-800' : 
+                                   item.kategori === 'Kebudayaan' ? 'bg-emerald-100 text-emerald-800' : 
+                                   'bg-amber-100 text-amber-800';
+
+                const cardHTML = `
+                    <div class="bg-white border border-gray-100 rounded-lg overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group h-full">
+                        <div class="relative overflow-hidden aspect-video">
+                            <img src="${item.gambar}" alt="${item.judul}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" onerror="this.onerror=null; this.src='https://placehold.co/600x400/1e4620/d4af37?text=Kegiatan+Take'">
+                            <span class="absolute top-3 left-3 text-xs tracking-widest font-serif font-bold ${badgeColor} px-3 py-1.5 rounded-sm uppercase shadow-sm">
+                                ${item.kategori}
+                            </span>
+                        </div>
+                        <div class="p-6 flex flex-col flex-grow">
+                            <span class="text-xs text-gray-400 font-sans mb-1 flex items-center gap-1.5">
+                                <i class="fa-regular fa-calendar"></i> ${item.tanggal}
+                            </span>
+                            <h3 class="font-serif text-xl font-bold text-sumi mb-3 hover:text-bamboo transition">${item.judul}</h3>
+                            <p class="text-gray-600 text-sm font-sans font-light leading-relaxed flex-grow mb-4">${item.deskripsi}</p>
+                            <div class="w-full border-t border-gray-100 pt-4 flex justify-between items-center text-xs">
+                                <span class="text-gold font-serif italic">竹の息吹</span>
+                                <span class="text-gray-400">Infrastruktur & Seni</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += cardHTML;
+            });
+        }
+
+        function renderSiswa() {
+            const container = document.getElementById('siswa-container');
+            container.innerHTML = "";
+
+            const searchVal = document.getElementById('siswa-search-input').value.toLowerCase();
+            const genderVal = document.getElementById('siswa-gender-filter').value;
+
+            const filtered = siswaData.filter(siswa => {
+                const matchesSearch = (siswa.nama && siswa.nama.toLowerCase().includes(searchVal)) || 
+                                      (siswa.haiku && siswa.haiku.toLowerCase().includes(searchVal)) || 
+                                      (siswa.peran && siswa.peran.toLowerCase().includes(searchVal));
+                const matchesGender = genderVal === "Semua" || siswa.gender === genderVal;
+                return matchesSearch && matchesGender;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full text-center py-12">
+                        <i class="fa-solid fa-moon text-gray-300 text-5xl mb-4"></i>
+                        <p class="font-serif italic text-gray-500">Siswa tidak ditemukan.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            filtered.forEach(siswa => {
+                const badgeStyle = (siswa.peran && (siswa.peran.includes('Taichou') || siswa.peran.includes('Ketua') || siswa.peran.includes('Sekretaris') || siswa.peran.includes('Bendahara') || siswa.peran.includes('Lead') || siswa.peran.includes('Specialist')))
+                    ? 'border-bamboo text-bamboo bg-bamboo/5'
+                    : 'border-gray-200 text-gray-500 bg-gray-50';
+
+                const cardHTML = `
+                    <div class="bg-white border border-gray-100 rounded-sm p-6 text-center shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col items-center gold-border-corner h-full">
+                        <div class="relative mb-5">
+                            <div class="w-24 h-24 rounded-full border-4 border-washi bg-white p-0.5 shadow-md overflow-hidden relative group-hover:border-bamboo transition duration-300">
+                                <img src="${siswa.avatar}" alt="${siswa.nama}" class="w-full h-full object-cover rounded-full" onerror="this.onerror=null; this.src='https://placehold.co/150/1e4620/d4af37?text=${siswa.panggilan}'">
+                            </div>
+                            <div class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-bamboo border-2 border-white flex items-center justify-center text-white text-[9px] shadow">
+                                ${siswa.gender === 'Laki-laki' ? '男' : '女'}
+                            </div>
+                        </div>
+
+                        <span class="text-[10px] uppercase tracking-widest px-2.5 py-1 border rounded-sm font-serif font-bold mb-3 ${badgeStyle}">
+                            ${siswa.peran}
+                        </span>
+
+                        <h3 class="font-serif text-lg font-bold text-sumi mb-1">${siswa.nama}</h3>
+                        <p class="text-xs text-gray-400 mb-4 font-sans">Panggilan: "${siswa.panggilan}"</p>
+
+                        <div class="bg-[#FAF6F0] p-4 rounded border-l-2 border-gold flex-grow flex items-center justify-center w-full">
+                            <p class="text-xs text-gray-600 italic font-serif leading-relaxed font-light">
+                                "${siswa.haiku}"
+                            </p>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += cardHTML;
+            });
+        }
+
+        // Event Handlers & Utility Functions
+        function filterKegiatan(category) {
+            currentActiveKegiatanFilter = category;
+            
+            const filterBtns = document.querySelectorAll('#kegiatan-filters button');
+            filterBtns.forEach(btn => {
+                if (btn.innerText.trim().toUpperCase() === category.toUpperCase()) {
+                    btn.className = "filter-btn active bg-sumi text-white px-5 py-2 rounded-full text-xs md:text-sm tracking-wider font-serif uppercase transition";
+                } else {
+                    btn.className = "filter-btn border border-gray-300 hover:border-bamboo px-5 py-2 rounded-full text-xs md:text-sm tracking-wider font-serif uppercase transition";
+                }
+            });
+
+            renderKegiatan();
+        }
+
+        function searchSiswa() {
+            renderSiswa();
+        }
+
+        function scrollToSection(id) {
+            const section = document.getElementById(id);
+            if (section) {
+                section.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const icon = document.getElementById('menu-icon');
+            if (menu.classList.contains('hidden')) {
+                menu.classList.remove('hidden');
+                menu.classList.add('flex');
+                icon.className = "fa-solid fa-xmark text-2xl";
+            } else {
+                menu.classList.remove('flex');
+                menu.classList.add('hidden');
+                icon.className = "fa-solid fa-bars text-2xl";
+            }
+        }
+
+        // Admin Auth System
+        function openAdminPanel() {
+            const overlay = document.getElementById('admin-shoji-overlay');
+            const card = document.getElementById('login-card');
+            
+            overlay.classList.remove('pointer-events-none');
+            overlay.classList.add('opacity-100');
+            overlay.classList.remove('shoji-open'); 
+
+            setTimeout(() => {
+                card.classList.remove('scale-90', 'opacity-0');
+                card.classList.add('scale-100', 'opacity-100');
+            }, 200);
+        }
+
+        function closeAdminPanel() {
+            const overlay = document.getElementById('admin-shoji-overlay');
+            const card = document.getElementById('login-card');
+            
+            card.classList.add('scale-90', 'opacity-0');
+            card.classList.remove('scale-100', 'opacity-100');
+
+            setTimeout(() => {
+                overlay.classList.add('pointer-events-none');
+                overlay.classList.remove('opacity-100');
+            }, 300);
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            const password = document.getElementById('admin-pass-field').value;
+
+            if (password === "xianui098") {
+                triggerToast("Kunci terbuka! Membuka gerbang Shoji...", "success");
+                
+                const overlay = document.getElementById('admin-shoji-overlay');
+                overlay.classList.add('shoji-open');
+                
+                const card = document.getElementById('login-card');
+                card.classList.add('opacity-0');
+
+                setTimeout(() => {
+                    closeAdminPanel();
+                    document.getElementById('admin-dashboard').classList.remove('hidden');
+                    renderAdminDashboard();
+                }, 1000);
+            } else {
+                triggerToast("Sandi salah! Gerbang tetap kokoh.", "error");
+            }
+        }
+
+        function logoutAdmin() {
+            document.getElementById('admin-dashboard').classList.add('hidden');
+            document.getElementById('admin-pass-field').value = "";
+            triggerToast("Keluar dari Admin Dashboard.", "info");
+        }
+
+        // Admin CRUD & Dashboard Display Logic
+        function renderAdminDashboard() {
+            document.getElementById('admin-kegiatan-badge').innerText = kegiatanData.length;
+            document.getElementById('admin-siswa-badge').innerText = siswaData.length;
+
+            // Render Kegiatan Admin list
+            const kList = document.getElementById('admin-kegiatan-list');
+            kList.innerHTML = "";
+            kegiatanData.forEach(k => {
+                kList.innerHTML += `
+                    <div class="flex items-center justify-between p-3 bg-gray-50 border border-gray-100 rounded hover:bg-white hover:shadow-sm transition">
+                        <div class="flex items-center space-x-3 overflow-hidden w-2/3">
+                            <img src="${k.gambar}" class="w-10 h-10 object-cover rounded flex-shrink-0" onerror="this.onerror=null; this.src='https://placehold.co/150'">
+                            <div class="truncate">
+                                <h4 class="font-serif font-bold text-sm text-sumi truncate">${k.judul}</h4>
+                                <span class="text-[10px] bg-bamboo/10 text-bamboo px-1.5 py-0.5 rounded">${k.kategori}</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="editItem('kegiatan', '${k.id}')" class="text-blue-600 hover:text-blue-800 p-1.5"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button onclick="deleteItem('kegiatan', '${k.id}')" class="text-red-600 hover:text-red-800 p-1.5"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Render Siswa Admin list
+            const sList = document.getElementById('admin-siswa-list');
+            sList.innerHTML = "";
+            siswaData.forEach(s => {
+                sList.innerHTML += `
+                    <div class="flex items-center justify-between p-3 bg-gray-50 border border-gray-100 rounded hover:bg-white hover:shadow-sm transition">
+                        <div class="flex items-center space-x-3 overflow-hidden w-2/3">
+                            <img src="${s.avatar}" class="w-10 h-10 object-cover rounded-full flex-shrink-0" onerror="this.onerror=null; this.src='https://placehold.co/150'">
+                            <div class="truncate">
+                                <h4 class="font-serif font-bold text-sm text-sumi truncate">${s.nama}</h4>
+                                <span class="text-[10px] text-gray-400 font-sans truncate">${s.peran}</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="editItem('siswa', '${s.id}')" class="text-blue-600 hover:text-blue-800 p-1.5"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button onclick="deleteItem('siswa', '${s.id}')" class="text-red-600 hover:text-red-800 p-1.5"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // CRUD Helpers
+        function openFormModal(type, id = null) {
+            editTargetType = type;
+            editTargetId = id;
+            
+            const modal = document.getElementById('crud-modal');
+            const title = document.getElementById('modal-title');
+            const form = document.getElementById('crud-form');
+            
+            modal.classList.remove('hidden');
+
+            if (type === 'siswa') {
+                title.innerText = id ? 'Edit Data Siswa' : 'Tambah Siswa Baru';
+                const current = id ? siswaData.find(s => s.id === id) : { nama: '', panggilan: '', gender: 'Laki-laki', peran: 'Anggota', haiku: '', avatar: '' };
+                
+                form.innerHTML = `
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Nama Lengkap</label>
+                        <input type="text" id="form-siswa-nama" value="${current.nama}" class="w-full p-2.5 border border-gray-200 rounded text-sm focus:border-bamboo focus:outline-none" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Panggilan</label>
+                        <input type="text" id="form-siswa-panggil" value="${current.panggilan}" class="w-full p-2.5 border border-gray-200 rounded text-sm focus:border-bamboo focus:outline-none" required>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Gender</label>
+                            <select id="form-siswa-gender" class="w-full p-2.5 border border-gray-200 rounded text-sm focus:border-bamboo focus:outline-none">
+                                <option value="Laki-laki" ${current.gender === 'Laki-laki' ? 'selected' : ''}>Laki-laki</option>
+                                <option value="Perempuan" ${current.gender === 'Perempuan' ? 'selected' : ''}>Perempuan</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Peran / Jabatan</label>
+                            <input type="text" id="form-siswa-peran" value="${current.peran}" class="w-full p-2.5 border border-gray-200 rounded text-sm focus:border-bamboo focus:outline-none" placeholder="Contoh: SysAdmin, Network Lead" required>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Haiku Favorit (Puisi Singkat)</label>
+                        <textarea id="form-siswa-haiku" class="w-full p-2.5 border border-gray-200 rounded text-sm focus:border-bamboo focus:outline-none" rows="2" placeholder="Tulis haiku orisinal..." required>${current.haiku}</textarea>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">URL Avatar Foto</label>
+                        <input type="url" id="form-siswa-avatar" value="${current.avatar}" class="w-full p-2.5 border border-gray-200 rounded text-sm focus:border-bamboo focus:outline-none" placeholder="Kosongkan jika ingin memakai default generator">
+                    </div>
+                    <div class="pt-4 flex justify-end space-x-2">
+                        <button type="button" onclick="closeFormModal()" class="px-4 py-2 border border-gray-200 rounded text-sm hover:bg-gray-100 transition">Batal</button>
+                        <button type="submit" class="px-5 py-2 bg-sumi text-white hover:bg-bamboo rounded text-sm transition font-medium">Simpan</button>
+                    </div>
+                `;
+            } else if (type === 'kegiatan') {
+                title.innerText = id ? 'Edit Kegiatan Jaringan' : 'Tambah Kegiatan Baru';
+                const current = id ? kegiatanData.find(k => k.id === id) : { judul: '', kategori: 'Kebudayaan', deskripsi: '', tanggal: '', gambar: '' };
+                
+                form.innerHTML = `
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Nama Kegiatan</label>
+                        <input type="text" id="form-keg-judul" value="${current.judul}" class="w-full p-2.5 border border-gray-200 rounded text-sm focus:border-bamboo focus:outline-none" required>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Kategori</label>
+                            <select id="form-keg-kat" class="w-full p-2.5 border border-gray-200 rounded text-sm focus:border-bamboo focus:outline-none">
+                                <option value="Akademik" ${current.kategori === 'Akademik' ? 'selected' : ''}>Akademik</option>
+                                <option value="Kebudayaan" ${current.kategori === 'Kebudayaan' ? 'selected' : ''}>Kebudayaan</option>
+                                <option value="Olahraga" ${current.kategori === 'Olahraga' ? 'selected' : ''}>Olahraga</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Tanggal Kegiatan</label>
+                            <input type="text" id="form-keg-tgl" value="${current.tanggal}" class="w-full p-2.5 border border-gray-200 rounded text-sm focus:border-bamboo focus:outline-none" placeholder="Contoh: 12 Maret 2026" required>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Deskripsi Kegiatan</label>
+                        <textarea id="form-keg-desc" class="w-full p-2.5 border border-gray-200 rounded text-sm focus:border-bamboo focus:outline-none" rows="3" required>${current.deskripsi}</textarea>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">URL Gambar Dokumentasi</label>
+                        <input type="url" id="form-keg-img" value="${current.gambar}" class="w-full p-2.5 border border-gray-200 rounded text-sm focus:border-bamboo focus:outline-none" placeholder="Kosongkan jika ingin memakai placeholder">
+                    </div>
+                    <div class="pt-4 flex justify-end space-x-2">
+                        <button type="button" onclick="closeFormModal()" class="px-4 py-2 border border-gray-200 rounded text-sm hover:bg-gray-100 transition">Batal</button>
+                        <button type="submit" class="px-5 py-2 bg-bamboo text-white hover:bg-[#122B14] rounded text-sm transition font-medium">Simpan</button>
+                    </div>
+                `;
+            }
+        }
+
+        function closeFormModal() {
+            document.getElementById('crud-modal').classList.add('hidden');
+        }
+
+        async function handleFormSubmit(event) {
+            event.preventDefault();
+
+            try {
+                if (editTargetType === 'siswa') {
+                    const nama = document.getElementById('form-siswa-nama').value;
+                    const panggilan = document.getElementById('form-siswa-panggil').value;
+                    const gender = document.getElementById('form-siswa-gender').value;
+                    const peran = document.getElementById('form-siswa-peran').value;
+                    const haiku = document.getElementById('form-siswa-haiku').value;
+                    let avatar = document.getElementById('form-siswa-avatar').value;
+
+                    if (!avatar) {
+                        avatar = `https://placehold.co/150/1e4620/d4af37?text=${panggilan}`;
+                    }
+
+                    const siswaPayload = { nama, panggilan, gender, peran, haiku, avatar };
+
+                    if (editTargetId) {
+                        const { error } = await supabase.from('siswa').update(siswaPayload).eq('id', editTargetId);
+                        if (error) throw error;
+                        triggerToast("Informasi siswa sukses diperbarui di awan!", "success");
+                    } else {
+                        const { error } = await supabase.from('siswa').insert(siswaPayload);
+                        if (error) throw error;
+                        triggerToast("Siswa baru sukses didaftarkan!", "success");
+                    }
+                    await loadSiswa();
+                } else if (editTargetType === 'kegiatan') {
+                    const judul = document.getElementById('form-keg-judul').value;
+                    const kategori = document.getElementById('form-keg-kat').value;
+                    const tanggal = document.getElementById('form-keg-tgl').value;
+                    const deskripsi = document.getElementById('form-keg-desc').value;
+                    let gambar = document.getElementById('form-keg-img').value;
+
+                    if (!gambar) {
+                        gambar = `https://placehold.co/600x400/1e4620/d4af37?text=${encodeURIComponent(judul)}`;
+                    }
+
+                    const kegiatanPayload = { judul, kategori, tanggal, deskripsi, gambar };
+
+                    if (editTargetId) {
+                        const { error } = await supabase.from('kegiatan').update(kegiatanPayload).eq('id', editTargetId);
+                        if (error) throw error;
+                        triggerToast("Kegiatan sukses diperbarui di awan!", "success");
+                    } else {
+                        const { error } = await supabase.from('kegiatan').insert(kegiatanPayload);
+                        if (error) throw error;
+                        triggerToast("Kegiatan baru sukses diunggah!", "success");
+                    }
+                    await loadKegiatan();
+                }
+                closeFormModal();
+            } catch (err) {
+                console.error("Supabase submit error:", err);
+                triggerToast("Gagal menyimpan data ke database awan.", "error");
+            }
+        }
+
+        function editItem(type, id) {
+            openFormModal(type, id);
+        }
+
+        // Custom elegant Confirmation System (Replacement of confirm())
+        function showCustomConfirm() {
+            const modal = document.getElementById('custom-confirm-modal');
+            modal.classList.remove('hidden');
+            
+            return new Promise((resolve) => {
+                currentConfirmResolve = resolve;
+            });
+        }
+
+        function handleConfirmChoice(choice) {
+            const modal = document.getElementById('custom-confirm-modal');
+            modal.classList.add('hidden');
+            if (currentConfirmResolve) {
+                currentConfirmResolve(choice);
+                currentConfirmResolve = null;
+            }
+        }
+
+        async function deleteItem(type, id) {
+            const isConfirmed = await showCustomConfirm();
+            if (isConfirmed) {
+                try {
+                    if (type === 'siswa') {
+                        const { error } = await supabase.from('siswa').delete().eq('id', id);
+                        if (error) throw error;
+                        triggerToast("Siswa telah dihapus secara permanen.", "success");
+                        await loadSiswa();
+                    } else if (type === 'kegiatan') {
+                        const { error } = await supabase.from('kegiatan').delete().eq('id', id);
+                        if (error) throw error;
+                        triggerToast("Dokumentasi kegiatan telah dihapus.", "success");
+                        await loadKegiatan();
+                    }
+                } catch (err) {
+                    console.error("Supabase delete error:", err);
+                    triggerToast("Gagal menghapus data dari database.", "error");
+                }
+            }
+        }
+
+        // Custom Toast Notification System
+        function triggerToast(message, type = "success") {
+            const toast = document.getElementById('toast-box');
+            const icon = document.getElementById('toast-icon');
+            const msg = document.getElementById('toast-msg');
+
+            msg.innerText = message;
+
+            if (type === "success") {
+                toast.firstElementChild.className = "bg-sumi text-white border-l-4 border-emerald-500 py-3 px-6 rounded shadow-xl flex items-center space-x-3";
+                icon.className = "fa-solid fa-circle-check text-emerald-500";
+            } else if (type === "error") {
+                toast.firstElementChild.className = "bg-sumi text-white border-l-4 border-red-500 py-3 px-6 rounded shadow-xl flex items-center space-x-3";
+                icon.className = "fa-solid fa-triangle-exclamation text-red-500";
+            } else {
+                toast.firstElementChild.className = "bg-sumi text-white border-l-4 border-gold py-3 px-6 rounded shadow-xl flex items-center space-x-3";
+                icon.className = "fa-solid fa-circle-info text-gold";
+            }
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+                toast.classList.remove('translate-y-0', 'opacity-100');
+            }, 3500);
+        }
+
+        // Bind dynamic handlers to window because type="module" prevents global scope leaks
+        window.scrollToSection = scrollToSection;
+        window.openAdminPanel = openAdminPanel;
+        window.closeAdminPanel = closeAdminPanel;
+        window.handleLogin = handleLogin;
+        window.logoutAdmin = logoutAdmin;
+        window.filterKegiatan = filterKegiatan;
+        window.searchSiswa = searchSiswa;
+        window.openFormModal = openFormModal;
+        window.closeFormModal = closeFormModal;
+        window.handleFormSubmit = handleFormSubmit;
+        window.editItem = editItem;
+        window.deleteItem = deleteItem;
+        window.toggleMobileMenu = toggleMobileMenu;
+
+        // Custom confirm setup
+        document.getElementById('confirm-ok-btn').onclick = () => handleConfirmChoice(true);
+        document.getElementById('confirm-cancel-btn').onclick = () => handleConfirmChoice(false);
+
+        // Run animation and cloud sync when page completes loading
+        window.onload = function() {
+            animateBambooForest();
+            connectCloudSync();
+        }
+    </script>
+</body>
+</html>
