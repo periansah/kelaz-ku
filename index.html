@@ -272,6 +272,10 @@ body.intro-locked {
                 Siswa
                 <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-bamboo transition-all duration-300 group-hover:w-full"></span>
             </button>
+            <button onclick="scrollToSection('piket')" class="hover:text-bamboo transition duration-300 relative group py-1">
+                Piket
+                <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-bamboo transition-all duration-300 group-hover:w-full"></span>
+            </button>
             <button onclick="openAdminPanel()" class="bg-sumi text-white hover:bg-bamboo px-5 py-2 rounded-full font-sans text-sm transition-all duration-300 flex items-center space-x-2 shadow-md">
                 <i class="fa-solid fa-yin-yang kamon-spin text-gold text-xs"></i>
                 <span>Dashboard Admin</span>
@@ -290,6 +294,7 @@ body.intro-locked {
         <button onclick="scrollToSection('beranda'); toggleMobileMenu()" class="hover:text-bamboo transition">Beranda</button>
         <button onclick="scrollToSection('kegiatan'); toggleMobileMenu()" class="hover:text-bamboo transition">Kegiatan</button>
         <button onclick="scrollToSection('siswa'); toggleMobileMenu()" class="hover:text-bamboo transition">Siswa</button>
+        <button onclick="scrollToSection('piket'); toggleMobileMenu()" class="hover:text-bamboo transition">Piket</button>
         <button onclick="openAdminPanel(); toggleMobileMenu()" class="bg-sumi text-white hover:bg-bamboo px-6 py-3 rounded-full font-sans text-base transition-all flex items-center space-x-2 shadow-md">
             <i class="fa-solid fa-yin-yang text-gold"></i>
             <span>Dashboard Admin</span>
@@ -410,6 +415,23 @@ body.intro-locked {
         </div>
     </section>
 
+    <section id="piket" class="py-20 bg-white/50 border-y border-gray-100 px-6 md:px-12 relative z-10">
+        <div class="max-w-6xl mx-auto">
+            <!-- Header Section -->
+            <div class="text-center mb-16">
+                <span class="font-serif text-bamboo tracking-widest text-lg font-bold block mb-2">// 当 番</span>
+                <h2 class="font-serif text-3xl md:text-5xl font-bold text-sumi tracking-wider">Jadwal Piket Kelas</h2>
+                <div class="w-16 h-1 bg-bamboo mx-auto mt-4 rounded-full"></div>
+                <p class="text-gray-500 mt-4 max-w-md mx-auto text-sm">Toban (当番) — giliran menjaga kebersihan dan kerapian ruang kelas XII TKJ Take setiap harinya.</p>
+            </div>
+
+            <!-- Piket Grid -->
+            <div id="piket-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Dynamic Content injected here -->
+            </div>
+        </div>
+    </section>
+
     <div id="admin-shoji-overlay" class="fixed inset-0 z-50 flex items-center justify-center pointer-events-none opacity-0 transition-opacity duration-300">
         <!-- Overlay Background -->
         <div class="absolute inset-0 bg-sumi/70 backdrop-blur-sm"></div>
@@ -494,6 +516,10 @@ body.intro-locked {
                         <i class="fa-solid fa-plus"></i>
                         <span>Kegiatan Baru</span>
                     </button>
+                    <button onclick="openFormModal('piket')" class="bg-[#8B6914] hover:bg-[#6b5010] text-white px-4 py-2 rounded-sm text-xs font-sans font-medium transition flex items-center space-x-2 shadow-sm">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Piket Baru</span>
+                    </button>
                     <button onclick="logoutAdmin()" class="border border-sumi text-sumi hover:bg-sumi hover:text-white px-4 py-2 rounded-sm text-xs transition">
                         Keluar Panel
                     </button>
@@ -501,7 +527,7 @@ body.intro-locked {
             </div>
 
             <!-- Dashboard Body Workspace -->
-            <div class="max-w-7xl w-full mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 flex-grow">
+            <div class="max-w-7xl w-full mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 flex-grow">
                 <!-- Activities Administration -->
                 <div class="bg-white p-6 rounded-md shadow-sm border border-gray-200">
                     <div class="flex justify-between items-center border-b border-gray-100 pb-4 mb-4">
@@ -528,6 +554,21 @@ body.intro-locked {
                     </div>
                     <!-- Mini Student List -->
                     <div id="admin-siswa-list" class="space-y-3 max-h-[550px] overflow-y-auto pr-2">
+                        <!-- Dynamic Items -->
+                    </div>
+                </div>
+
+                <!-- Piket Administration -->
+                <div class="bg-white p-6 rounded-md shadow-sm border border-gray-200">
+                    <div class="flex justify-between items-center border-b border-gray-100 pb-4 mb-4">
+                        <h3 class="font-serif text-lg font-bold text-sumi flex items-center space-x-2">
+                            <i class="fa-solid fa-broom text-bamboo"></i>
+                            <span>Kelola Jadwal Piket</span>
+                        </h3>
+                        <span id="admin-piket-badge" class="bg-gray-100 text-gray-700 text-xs px-2.5 py-1 rounded-full font-bold">0</span>
+                    </div>
+                    <!-- Mini Piket List -->
+                    <div id="admin-piket-list" class="space-y-3 max-h-[550px] overflow-y-auto pr-2">
                         <!-- Dynamic Items -->
                     </div>
                 </div>
@@ -612,9 +653,14 @@ body.intro-locked {
         // Core State
         let kegiatanData = [];
         let siswaData = [];
+        let piketData = [];
         let currentActiveKegiatanFilter = "Semua";
         let editTargetType = ""; 
         let editTargetId = null;
+
+        // Urutan hari & lambang kanji untuk Jadwal Piket
+        const dayOrder = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"];
+        const dayKanji = { "Senin": "月", "Selasa": "火", "Rabu": "水", "Kamis": "木", "Jumat": "金", "Sabtu": "土", "Minggu": "日" };
 
         // Custom Confirmation State Guard
         let currentConfirmResolve = null;
@@ -728,6 +774,7 @@ body.intro-locked {
         async function connectCloudSync() {
             await loadSiswa();
             await loadKegiatan();
+            await loadPiket();
 
             // Realtime: setiap ada perubahan di tabel siswa, muat ulang otomatis
             supabase.channel('public:siswa')
@@ -740,6 +787,13 @@ body.intro-locked {
             supabase.channel('public:kegiatan')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'kegiatan' }, () => {
                     loadKegiatan();
+                })
+                .subscribe();
+
+            // Realtime: setiap ada perubahan di tabel piket, muat ulang otomatis
+            supabase.channel('public:piket')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'piket' }, () => {
+                    loadPiket();
                 })
                 .subscribe();
         }
@@ -769,6 +823,20 @@ body.intro-locked {
                 return;
             }
             kegiatanData = data;
+            renderAll();
+        }
+
+        async function loadPiket() {
+            const { data, error } = await supabase.from('piket').select('*').order('created_at', { ascending: true });
+            if (error) {
+                console.error("Error reading piket table:", error);
+                return;
+            }
+            if (!data || data.length === 0) {
+                await seedDefaultPiket();
+                return;
+            }
+            piketData = data;
             renderAll();
         }
 
@@ -804,10 +872,28 @@ body.intro-locked {
             await loadKegiatan();
         }
 
+        async function seedDefaultPiket() {
+            const initialPiket = [
+                { hari: "Senin", anggota: "Rian Takeshi, Aiko Lestari", catatan: "Menyapu lantai & merapikan meja guru." },
+                { hari: "Selasa", anggota: "Kenji Pratama, Yuki Handayani", catatan: "Membersihkan papan tulis & jendela." },
+                { hari: "Rabu", anggota: "Daichi Wijaya, Natsumi Putri", catatan: "Menata kabel & perangkat lab jaringan." },
+                { hari: "Kamis", anggota: "Rian Takeshi, Kenji Pratama", catatan: "Membuang sampah & menyiram tanaman kelas." },
+                { hari: "Jumat", anggota: "Aiko Lestari, Natsumi Putri", catatan: "Merapikan rak buku & absensi mingguan." },
+                { hari: "Sabtu", anggota: "Yuki Handayani, Daichi Wijaya", catatan: "Pengecekan akhir & kunci ruang kelas." }
+            ];
+            const { error } = await supabase.from('piket').insert(initialPiket);
+            if (error) {
+                console.error("Error seeding piket:", error);
+                return;
+            }
+            await loadPiket();
+        }
+
         // UI Render Functions
         function renderAll() {
             renderKegiatan();
             renderSiswa();
+            renderPiket();
             renderStats();
             renderAdminDashboard();
         }
@@ -924,6 +1010,59 @@ body.intro-locked {
             });
         }
 
+        function renderPiket() {
+            const container = document.getElementById('piket-container');
+            container.innerHTML = "";
+
+            if (piketData.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full text-center py-12">
+                        <i class="fa-solid fa-broom text-gray-300 text-5xl mb-4"></i>
+                        <p class="font-serif italic text-gray-500">Jadwal piket belum tersedia.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Urutkan berdasarkan urutan hari Senin - Minggu
+            const sorted = [...piketData].sort((a, b) => {
+                const idxA = dayOrder.indexOf(a.hari);
+                const idxB = dayOrder.indexOf(b.hari);
+                return (idxA === -1 ? 99 : idxA) - (idxB === -1 ? 99 : idxB);
+            });
+
+            sorted.forEach(item => {
+                const anggotaList = (item.anggota || "").split(",").map(n => n.trim()).filter(Boolean);
+                const pillsHTML = anggotaList.map(nama => `
+                    <span class="inline-block text-xs bg-bamboo/10 text-bamboo px-3 py-1 rounded-full font-sans font-medium">${nama}</span>
+                `).join("");
+
+                const cardHTML = `
+                    <div class="bg-white border border-gray-100 rounded-lg overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col h-full gold-border-corner">
+                        <div class="bg-sumi px-6 py-5 flex items-center justify-between">
+                            <div>
+                                <span class="text-gold text-[10px] uppercase tracking-widest font-sans block mb-0.5">Jadwal Toban</span>
+                                <h3 class="font-serif text-xl font-bold text-white">${item.hari}</h3>
+                            </div>
+                            <span class="font-serif text-3xl text-gold/70">${dayKanji[item.hari] || '曜'}</span>
+                        </div>
+                        <div class="p-6 flex flex-col flex-grow">
+                            <span class="text-[10px] uppercase tracking-widest text-gray-400 font-sans mb-2">Anggota Bertugas</span>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                ${pillsHTML || '<span class="text-xs text-gray-400 italic">Belum ada anggota</span>'}
+                            </div>
+                            <div class="w-full border-t border-gray-100 pt-4 mt-auto">
+                                <p class="text-gray-600 text-sm font-sans font-light leading-relaxed">
+                                    <i class="fa-solid fa-note-sticky text-gold mr-1.5"></i>${item.catatan || 'Tidak ada catatan khusus.'}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += cardHTML;
+            });
+        }
+
         // Event Handlers & Utility Functions
         function filterKegiatan(category) {
             currentActiveKegiatanFilter = category;
@@ -1026,6 +1165,7 @@ body.intro-locked {
         function renderAdminDashboard() {
             document.getElementById('admin-kegiatan-badge').innerText = kegiatanData.length;
             document.getElementById('admin-siswa-badge').innerText = siswaData.length;
+            document.getElementById('admin-piket-badge').innerText = piketData.length;
 
             // Render Kegiatan Admin list
             const kList = document.getElementById('admin-kegiatan-list');
@@ -1064,6 +1204,34 @@ body.intro-locked {
                         <div class="flex items-center space-x-2">
                             <button onclick="editItem('siswa', '${s.id}')" class="text-blue-600 hover:text-blue-800 p-1.5"><i class="fa-solid fa-pen-to-square"></i></button>
                             <button onclick="deleteItem('siswa', '${s.id}')" class="text-red-600 hover:text-red-800 p-1.5"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Render Piket Admin list (diurutkan Senin - Minggu)
+            const pList = document.getElementById('admin-piket-list');
+            pList.innerHTML = "";
+            const sortedPiket = [...piketData].sort((a, b) => {
+                const idxA = dayOrder.indexOf(a.hari);
+                const idxB = dayOrder.indexOf(b.hari);
+                return (idxA === -1 ? 99 : idxA) - (idxB === -1 ? 99 : idxB);
+            });
+            sortedPiket.forEach(p => {
+                pList.innerHTML += `
+                    <div class="flex items-center justify-between p-3 bg-gray-50 border border-gray-100 rounded hover:bg-white hover:shadow-sm transition">
+                        <div class="flex items-center space-x-3 overflow-hidden w-2/3">
+                            <div class="w-10 h-10 rounded bg-sumi flex items-center justify-center flex-shrink-0">
+                                <span class="font-serif text-gold text-sm">${dayKanji[p.hari] || '曜'}</span>
+                            </div>
+                            <div class="truncate">
+                                <h4 class="font-serif font-bold text-sm text-sumi truncate">${p.hari}</h4>
+                                <span class="text-[10px] text-gray-400 font-sans truncate block">${p.anggota}</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="editItem('piket', '${p.id}')" class="text-blue-600 hover:text-blue-800 p-1.5"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button onclick="deleteItem('piket', '${p.id}')" class="text-red-600 hover:text-red-800 p-1.5"><i class="fa-solid fa-trash"></i></button>
                         </div>
                     </div>
                 `;
@@ -1156,6 +1324,32 @@ body.intro-locked {
                         <button type="submit" class="px-5 py-2 bg-bamboo text-white hover:bg-[#122B14] rounded text-sm transition font-medium">Simpan</button>
                     </div>
                 `;
+            } else if (type === 'piket') {
+                title.innerText = id ? 'Edit Jadwal Piket' : 'Tambah Jadwal Piket';
+                const current = id ? piketData.find(p => p.id === id) : { hari: 'Senin', anggota: '', catatan: '' };
+
+                const dayOptionsHTML = dayOrder.map(d => `<option value="${d}" ${current.hari === d ? 'selected' : ''}>${d}</option>`).join('');
+
+                form.innerHTML = `
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Hari</label>
+                        <select id="form-piket-hari" class="w-full p-2.5 border border-gray-200 rounded text-sm focus:border-bamboo focus:outline-none">
+                            ${dayOptionsHTML}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Anggota Bertugas</label>
+                        <input type="text" id="form-piket-anggota" value="${current.anggota}" class="w-full p-2.5 border border-gray-200 rounded text-sm focus:border-bamboo focus:outline-none" placeholder="Pisahkan dengan koma, contoh: Rian, Aiko" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Catatan Tugas (opsional)</label>
+                        <textarea id="form-piket-catatan" class="w-full p-2.5 border border-gray-200 rounded text-sm focus:border-bamboo focus:outline-none" rows="2" placeholder="Contoh: Menyapu lantai & merapikan meja guru">${current.catatan || ''}</textarea>
+                    </div>
+                    <div class="pt-4 flex justify-end space-x-2">
+                        <button type="button" onclick="closeFormModal()" class="px-4 py-2 border border-gray-200 rounded text-sm hover:bg-gray-100 transition">Batal</button>
+                        <button type="submit" class="px-5 py-2 bg-[#8B6914] text-white hover:bg-[#6b5010] rounded text-sm transition font-medium">Simpan</button>
+                    </div>
+                `;
             }
         }
 
@@ -1214,6 +1408,23 @@ body.intro-locked {
                         triggerToast("Kegiatan baru sukses diunggah!", "success");
                     }
                     await loadKegiatan();
+                } else if (editTargetType === 'piket') {
+                    const hari = document.getElementById('form-piket-hari').value;
+                    const anggota = document.getElementById('form-piket-anggota').value;
+                    const catatan = document.getElementById('form-piket-catatan').value;
+
+                    const piketPayload = { hari, anggota, catatan };
+
+                    if (editTargetId) {
+                        const { error } = await supabase.from('piket').update(piketPayload).eq('id', editTargetId);
+                        if (error) throw error;
+                        triggerToast("Jadwal piket sukses diperbarui di awan!", "success");
+                    } else {
+                        const { error } = await supabase.from('piket').insert(piketPayload);
+                        if (error) throw error;
+                        triggerToast("Jadwal piket baru sukses ditambahkan!", "success");
+                    }
+                    await loadPiket();
                 }
                 closeFormModal();
             } catch (err) {
@@ -1259,6 +1470,11 @@ body.intro-locked {
                         if (error) throw error;
                         triggerToast("Dokumentasi kegiatan telah dihapus.", "success");
                         await loadKegiatan();
+                    } else if (type === 'piket') {
+                        const { error } = await supabase.from('piket').delete().eq('id', id);
+                        if (error) throw error;
+                        triggerToast("Jadwal piket telah dihapus.", "success");
+                        await loadPiket();
                     }
                 } catch (err) {
                     console.error("Supabase delete error:", err);
