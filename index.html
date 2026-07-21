@@ -213,6 +213,54 @@ body.intro-locked {
             border-bottom: 2px solid #D4AF37;
             border-right: 2px solid #D4AF37;
         }
+
+        /* ============ IMAGE LIGHTBOX ============ */
+        #image-lightbox {
+            position: fixed;
+            inset: 0;
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        #image-lightbox.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        #image-lightbox .lightbox-backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(28,28,28,0.92);
+            backdrop-filter: blur(4px);
+        }
+        #image-lightbox .lightbox-img-wrap {
+            position: relative;
+            z-index: 2;
+            max-width: 90vw;
+            max-height: 88vh;
+            transform: scale(0.92);
+            opacity: 0;
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+        }
+        #image-lightbox.active .lightbox-img-wrap {
+            transform: scale(1);
+            opacity: 1;
+        }
+        #image-lightbox img {
+            max-width: 90vw;
+            max-height: 80vh;
+            object-fit: contain;
+            border: 2px solid rgba(212,175,55,0.6);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            border-radius: 2px;
+        }
+        .kegiatan-thumb {
+            cursor: zoom-in;
+        }
     </style>
 </head>
 <body class="washi-bg min-h-screen flex flex-col relative">
@@ -618,6 +666,17 @@ body.intro-locked {
         </div>
     </div>
 
+    <!-- Image Lightbox (untuk memperbesar gambar kegiatan) -->
+    <div id="image-lightbox" onclick="closeImageLightbox(event)">
+        <div class="lightbox-backdrop"></div>
+        <div class="lightbox-img-wrap">
+            <img id="lightbox-img-el" src="" alt="Pratinjau Gambar">
+        </div>
+        <button onclick="closeImageLightbox(event)" class="absolute top-5 right-5 md:top-8 md:right-8 z-10 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 border border-white/30 text-white flex items-center justify-center transition">
+            <i class="fa-solid fa-xmark text-xl"></i>
+        </button>
+    </div>
+
     <!-- Footer -->
     <footer class="mt-auto bg-sumi text-washi/70 py-12 px-6 border-t-4 border-bamboo text-center font-sans font-light text-xs md:text-sm relative z-10">
         <div class="max-w-4xl mx-auto space-y-6">
@@ -929,7 +988,7 @@ body.intro-locked {
                 const cardHTML = `
                     <div class="bg-white border border-gray-100 rounded-lg overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group h-full">
                         <div class="relative overflow-hidden aspect-video">
-                            <img src="${item.gambar}" alt="${item.judul}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" onerror="this.onerror=null; this.src='https://placehold.co/600x400/1e4620/d4af37?text=Kegiatan+Take'">
+                            <img src="${item.gambar}" alt="${item.judul}" class="kegiatan-thumb w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" onerror="this.onerror=null; this.src='https://placehold.co/600x400/1e4620/d4af37?text=Kegiatan+Take'" onclick="openImageLightbox('${item.gambar.replace(/'/g, "\\'")}', '${(item.judul || '').replace(/'/g, "\\'")}')">
                             <span class="absolute top-3 left-3 text-xs tracking-widest font-serif font-bold ${badgeColor} px-3 py-1.5 rounded-sm uppercase shadow-sm">
                                 ${item.kategori}
                             </span>
@@ -1103,6 +1162,31 @@ body.intro-locked {
                 icon.className = "fa-solid fa-bars text-2xl";
             }
         }
+
+        // Image Lightbox Handlers (memperbesar gambar kegiatan saat diklik)
+        function openImageLightbox(src, alt) {
+            const lightbox = document.getElementById('image-lightbox');
+            const img = document.getElementById('lightbox-img-el');
+            img.src = src;
+            img.alt = alt || 'Pratinjau Gambar';
+            lightbox.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeImageLightbox(event) {
+            // Jangan tutup jika klik terjadi tepat di atas gambar itu sendiri
+            if (event && event.target && event.target.id === 'lightbox-img-el') return;
+            const lightbox = document.getElementById('image-lightbox');
+            lightbox.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Tutup lightbox dengan tombol Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeImageLightbox();
+            }
+        });
 
         // Admin Auth System
         function openAdminPanel() {
@@ -1525,6 +1609,8 @@ body.intro-locked {
         window.editItem = editItem;
         window.deleteItem = deleteItem;
         window.toggleMobileMenu = toggleMobileMenu;
+        window.openImageLightbox = openImageLightbox;
+        window.closeImageLightbox = closeImageLightbox;
 
         // Custom confirm setup
         document.getElementById('confirm-ok-btn').onclick = () => handleConfirmChoice(true);
