@@ -267,6 +267,17 @@ body.intro-locked {
 
     <!-- Ambient background canvas (Bamboo leaves and data sparkles) -->
     <canvas id="bamboo-canvas"></canvas>
+
+    <!-- Musik Latar (diputar otomatis begitu animasi intro selesai) -->
+    <audio id="bg-music" loop preload="auto"></audio>
+
+    <!-- Tombol Kontrol Musik Latar (mengambang, untuk pengunjung) -->
+    <button id="music-toggle-btn" onclick="toggleBackgroundMusic()"
+        class="fixed bottom-6 left-6 z-[80] w-12 h-12 rounded-full bg-sumi text-gold shadow-xl border border-gold/40 flex items-center justify-center hover:bg-bamboo transition-all duration-300"
+        title="Putar/Jeda musik latar">
+        <i id="music-toggle-icon" class="fa-solid fa-play text-sm"></i>
+    </button>
+
     <div id="site-intro">
     <div class="intro-panel intro-panel-left"></div>
     <div class="intro-panel intro-panel-right"></div>
@@ -621,6 +632,36 @@ body.intro-locked {
                     </div>
                 </div>
             </div>
+
+            <!-- Musik Latar Administration -->
+            <div class="max-w-7xl w-full mx-auto mt-8">
+                <div class="bg-white p-6 rounded-md shadow-sm border border-gray-200">
+                    <div class="flex justify-between items-center border-b border-gray-100 pb-4 mb-4">
+                        <h3 class="font-serif text-lg font-bold text-sumi flex items-center space-x-2">
+                            <i class="fa-solid fa-music text-bamboo"></i>
+                            <span>Kelola Musik Latar</span>
+                        </h3>
+                    </div>
+                    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-full bg-bamboo/10 flex items-center justify-center text-bamboo">
+                                <i class="fa-solid fa-compact-disc"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-400 uppercase tracking-wider font-sans">Lagu Aktif Saat Ini</p>
+                                <p id="admin-musik-nama" class="font-serif font-medium text-sumi">Belum ada musik diunggah</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2 w-full md:w-auto">
+                            <input type="file" id="admin-musik-file" accept="audio/*" class="text-xs font-sans border border-gray-200 rounded-sm p-2 w-full md:w-auto">
+                            <button onclick="uploadMusikLatar()" id="admin-musik-upload-btn" class="bg-bamboo hover:bg-[#122B14] text-white px-4 py-2.5 rounded-sm text-xs font-sans font-medium transition shadow-sm whitespace-nowrap">
+                                <i class="fa-solid fa-upload mr-1"></i> Unggah
+                            </button>
+                        </div>
+                    </div>
+                    <p class="text-[11px] text-gray-400 font-sans mt-3">Mengunggah lagu baru akan menggantikan musik latar yang lama. Lagu akan otomatis diputar untuk pengunjung setelah animasi pembuka selesai.</p>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -716,6 +757,8 @@ body.intro-locked {
         let currentActiveKegiatanFilter = "Semua";
         let editTargetType = ""; 
         let editTargetId = null;
+        let musikData = null; // { url, nama_file }
+        const MUSIK_BUCKET = "musik-latar"; // nama bucket Supabase Storage (buat manual & jadikan public)
 
         // Urutan hari & lambang kanji untuk Jadwal Piket
         const dayOrder = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"];
@@ -834,6 +877,14 @@ body.intro-locked {
             await loadSiswa();
             await loadKegiatan();
             await loadPiket();
+            await loadMusik();
+
+            // Realtime: setiap ada musik latar baru diunggah, muat ulang otomatis
+            supabase.channel('public:musik')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'musik' }, () => {
+                    loadMusik();
+                })
+                .subscribe();
 
             // Realtime: setiap ada perubahan di tabel siswa, muat ulang otomatis
             supabase.channel('public:siswa')
@@ -898,6 +949,139 @@ body.intro-locked {
             piketData = data;
             renderAll();
         }
+
+        async function loadMusik() {
+            const { data, error } = await supabase
+                .from('musik')
+                .select('*')
+                .eq('id', 1)
+                .maybeSingle();
+
+            if (error) {
+                console.error("Error reading musik table:", error);
+                return;
+            }
+
+            musikData = data || null;
+
+            const audio = document.getElementById('bg-music');
+            const namaLabel = document.getElementById('admin-musik-nama');
+
+            if (musikData && musikData.url) {
+                if (audio.src !== musikData.url) {
+                    audio.src = musikData.url;
+                }
+                if (namaLabel) namaLabel.innerText = musikData.nama_file || "Musik latar";
+            } else {
+                if (namaLabel) namaLabel.innerText = "Belum ada musik diunggah";
+            }
+        }
+
+        async function uploadMusikLatar() {
+            const fileInput = document.getElementById('admin-musik-file');
+            const btn = document.getElementById('admin-musik-upload-btn');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                triggerToast("Pilih file audio terlebih dahulu.", "error");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Mengunggah...';
+
+            try {
+                const filePath = `latar-${Date.now()}-${file.name}`;
+
+                const { error: uploadError } = await supabase
+                    .storage
+                    .from(MUSIK_BUCKET)
+                    .upload(filePath, file, { cacheControl: '3600', upsert: false });
+
+                if (uploadError) throw uploadError;
+
+                const { data: publicUrlData } = supabase
+                    .storage
+                    .from(MUSIK_BUCKET)
+                    .getPublicUrl(filePath);
+
+                const publicUrl = publicUrlData.publicUrl;
+
+                const { error: dbError } = await supabase
+                    .from('musik')
+                    .upsert({ id: 1, url: publicUrl, nama_file: file.name, updated_at: new Date().toISOString() });
+
+                if (dbError) throw dbError;
+
+                // Hapus file lama dari storage kalau ada, biar tidak menumpuk (best-effort)
+                if (musikData && musikData.url && musikData.url !== publicUrl) {
+                    const oldPath = musikData.url.split(`/${MUSIK_BUCKET}/`)[1];
+                    if (oldPath) {
+                        await supabase.storage.from(MUSIK_BUCKET).remove([oldPath]);
+                    }
+                }
+
+                await loadMusik();
+                fileInput.value = "";
+                triggerToast("Musik latar sukses diunggah!", "success");
+            } catch (err) {
+                console.error("Upload musik error:", err);
+                triggerToast("Gagal mengunggah musik latar.", "error");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-upload mr-1"></i> Unggah';
+            }
+        }
+
+        function playBackgroundMusic() {
+            const audio = document.getElementById('bg-music');
+            if (!audio || !audio.src) return;
+            audio.volume = 0.5;
+            audio.play().catch(err => {
+                console.warn("Autoplay musik latar diblokir oleh browser:", err);
+            });
+        }
+
+        function toggleBackgroundMusic() {
+            const audio = document.getElementById('bg-music');
+            if (!audio || !audio.src) {
+                triggerToast("Belum ada musik latar yang diunggah admin.", "info");
+                return;
+            }
+            if (audio.paused) {
+                audio.volume = 0.5;
+                audio.play().catch(err => {
+                    console.warn("Gagal memutar musik latar:", err);
+                    triggerToast("Gagal memutar musik latar.", "error");
+                });
+            } else {
+                audio.pause();
+            }
+        }
+
+        function syncMusicToggleIcon() {
+            const audio = document.getElementById('bg-music');
+            const icon = document.getElementById('music-toggle-icon');
+            if (!audio || !icon) return;
+            if (audio.paused) {
+                icon.classList.remove('fa-pause');
+                icon.classList.add('fa-play');
+            } else {
+                icon.classList.remove('fa-play');
+                icon.classList.add('fa-pause');
+            }
+        }
+
+        (function initMusicToggleSync() {
+            const audio = document.getElementById('bg-music');
+            if (!audio) return;
+            audio.addEventListener('play', syncMusicToggleIcon);
+            audio.addEventListener('pause', syncMusicToggleIcon);
+        })();
+
+        window.playBackgroundMusic = playBackgroundMusic;
+        window.toggleBackgroundMusic = toggleBackgroundMusic;
+        window.uploadMusikLatar = uploadMusikLatar;
 
         async function seedDefaultSiswa() {
             const initialSiswa = [
@@ -1635,6 +1819,11 @@ body.intro-locked {
             beranda.scrollIntoView({ behavior: 'auto', block: 'start' });
         }
         intro.remove();
+
+        // Langsung mulai musik latar yang sudah diunggah admin dari dashboard
+        if (window.playBackgroundMusic) {
+            window.playBackgroundMusic();
+        }
     };
 
     if (reduceMotion) {
