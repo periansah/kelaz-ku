@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Take Class - Website Kelas XII TKJ</title>
+    <!-- Favicon (logo lingkaran bambu bertema hijau & emas, senada dengan logo navbar) -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%231E4620' stroke='%23D4AF37' stroke-width='2.5'/%3E%3Ccircle cx='32' cy='32' r='18' fill='%231E4620'/%3E%3Cpath d='M32 16c-7 6-9 14-6 26 2-8 1-16 6-22z' fill='%23D4AF37'/%3E%3Cpath d='M32 16c7 6 9 14 6 26-2-8-1-16-6-22z' fill='%234E7041'/%3E%3C/svg%3E">
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts: Noto Serif JP, Playfair Display, & Inter -->
@@ -987,16 +989,37 @@ body.intro-locked {
                 return;
             }
 
+            // Validasi tipe file harus audio
+            if (!file.type.startsWith('audio/')) {
+                triggerToast("File harus berupa audio (mp3, wav, dll).", "error");
+                return;
+            }
+
+            // Batas ukuran file, misal 15MB
+            const MAX_SIZE = 15 * 1024 * 1024;
+            if (file.size > MAX_SIZE) {
+                triggerToast("Ukuran file maksimal 15MB.", "error");
+                return;
+            }
+
             btn.disabled = true;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Mengunggah...';
 
             try {
-                const filePath = `latar-${Date.now()}-${file.name}`;
+                // Sanitasi nama file: hilangkan spasi & karakter aneh, biar path storage valid
+                const safeName = file.name
+                    .normalize('NFKD')
+                    .replace(/[^\w.\-]+/g, '_');
+                const filePath = `latar-${Date.now()}-${safeName}`;
 
                 const { error: uploadError } = await supabase
                     .storage
                     .from(MUSIK_BUCKET)
-                    .upload(filePath, file, { cacheControl: '3600', upsert: false });
+                    .upload(filePath, file, {
+                        cacheControl: '3600',
+                        upsert: false,
+                        contentType: file.type
+                    });
 
                 if (uploadError) throw uploadError;
 
@@ -1026,7 +1049,8 @@ body.intro-locked {
                 triggerToast("Musik latar sukses diunggah!", "success");
             } catch (err) {
                 console.error("Upload musik error:", err);
-                triggerToast("Gagal mengunggah musik latar.", "error");
+                // Tampilkan pesan error asli biar lebih mudah didiagnosis (mis. masalah RLS/policy)
+                triggerToast(`Gagal mengunggah: ${err.message || 'periksa koneksi/izin bucket'}`, "error");
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fa-solid fa-upload mr-1"></i> Unggah';
