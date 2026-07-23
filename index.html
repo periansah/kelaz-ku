@@ -329,6 +329,10 @@ body.intro-locked {
                 Kegiatan
                 <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-bamboo transition-all duration-300 group-hover:w-full"></span>
             </button>
+            <button onclick="scrollToSection('wali-kelas')" class="hover:text-bamboo transition duration-300 relative group py-1">
+                Wali Kelas
+                <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-bamboo transition-all duration-300 group-hover:w-full"></span>
+            </button>
             <button onclick="scrollToSection('siswa')" class="hover:text-bamboo transition duration-300 relative group py-1">
                 Siswa
                 <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-bamboo transition-all duration-300 group-hover:w-full"></span>
@@ -354,6 +358,7 @@ body.intro-locked {
     <div id="mobile-menu" class="hidden fixed inset-0 z-30 bg-[#FAF6F0] flex-col justify-center items-center space-y-8 font-serif text-2xl text-sumi">
         <button onclick="scrollToSection('beranda'); toggleMobileMenu()" class="hover:text-bamboo transition">Beranda</button>
         <button onclick="scrollToSection('kegiatan'); toggleMobileMenu()" class="hover:text-bamboo transition">Kegiatan</button>
+        <button onclick="scrollToSection('wali-kelas'); toggleMobileMenu()" class="hover:text-bamboo transition">Wali Kelas</button>
         <button onclick="scrollToSection('siswa'); toggleMobileMenu()" class="hover:text-bamboo transition">Siswa</button>
         <button onclick="scrollToSection('piket'); toggleMobileMenu()" class="hover:text-bamboo transition">Piket</button>
         <button onclick="openAdminPanel(); toggleMobileMenu()" class="bg-sumi text-white hover:bg-bamboo px-6 py-3 rounded-full font-sans text-base transition-all flex items-center space-x-2 shadow-md">
@@ -375,7 +380,7 @@ body.intro-locked {
             </div>
             
             <h1 class="font-serif text-5xl md:text-8xl font-bold text-sumi tracking-wider leading-tight">
-                XII <span class="text-bamboo font-light">TKJ</span> <span class="font-playfair italic font-medium text-moss"></span>
+                XII <span class="text-bamboo font-light">TKJ</span> <span class="font-playfair italic font-medium text-moss">Take</span>
             </h1>
             
             <p class="max-w-2xl mx-auto text-gray-700 md:text-lg leading-relaxed font-sans font-light">
@@ -440,6 +445,36 @@ body.intro-locked {
             <!-- Kegiatan Grid -->
             <div id="kegiatan-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <!-- Dynamic Content injected here -->
+            </div>
+        </div>
+    </section>
+
+    <section id="wali-kelas" class="py-20 bg-white/50 border-y border-gray-100 px-6 md:px-12 relative z-10">
+        <div class="max-w-4xl mx-auto">
+            <!-- Header Section -->
+            <div class="text-center mb-14">
+                <span class="font-serif text-bamboo tracking-widest text-lg font-bold block mb-2">// 担 任</span>
+                <h2 class="font-serif text-3xl md:text-5xl font-bold text-sumi tracking-wider">Wali Kelas</h2>
+                <div class="w-16 h-1 bg-bamboo mx-auto mt-4 rounded-full"></div>
+                <p class="text-gray-500 mt-4 max-w-md mx-auto text-sm">Tannin (担任) — sosok pembimbing yang menuntun XII TKJ Take dengan penuh dedikasi.</p>
+            </div>
+
+            <!-- Wali Kelas Card -->
+            <div id="wali-kelas-container" class="bg-white border border-gray-100 rounded-lg shadow-sm overflow-hidden">
+                <div class="flex flex-col md:flex-row items-center gap-8 p-8 md:p-10">
+                    <div class="flex-shrink-0">
+                        <div class="w-36 h-36 md:w-44 md:h-44 rounded-full border-4 border-gold shadow-md overflow-hidden bg-bamboo/10 flex items-center justify-center">
+                            <img id="wali-foto" src="https://placehold.co/300x300/1e4620/d4af37?text=Wali+Kelas" alt="Foto Wali Kelas" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='https://placehold.co/300x300/1e4620/d4af37?text=Wali+Kelas'">
+                        </div>
+                    </div>
+                    <div class="text-center md:text-left flex-grow">
+                        <span id="wali-jabatan" class="text-xs tracking-widest text-bamboo uppercase font-sans font-bold">Wali Kelas XII TKJ Take</span>
+                        <h3 id="wali-nama" class="font-serif text-2xl md:text-3xl font-bold text-sumi mt-1 mb-3">Menunggu Data Wali Kelas</h3>
+                        <p id="wali-kutipan" class="text-gray-500 text-sm font-sans font-light leading-relaxed italic border-l-2 border-gold pl-4">
+                            "Kutipan atau pesan dari wali kelas akan tampil di sini setelah diisi melalui dashboard admin."
+                        </p>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -635,6 +670,31 @@ body.intro-locked {
                 </div>
             </div>
 
+            <!-- Wali Kelas Administration -->
+            <div class="max-w-7xl w-full mx-auto mt-8">
+                <div class="bg-white p-6 rounded-md shadow-sm border border-gray-200">
+                    <div class="flex justify-between items-center border-b border-gray-100 pb-4 mb-4">
+                        <h3 class="font-serif text-lg font-bold text-sumi flex items-center space-x-2">
+                            <i class="fa-solid fa-chalkboard-user text-bamboo"></i>
+                            <span>Kelola Wali Kelas</span>
+                        </h3>
+                        <button onclick="openFormModal('wali')" class="bg-bamboo hover:bg-[#122B14] text-white px-4 py-2 rounded-sm text-xs font-sans font-medium transition flex items-center space-x-2 shadow-sm">
+                            <i class="fa-solid fa-pen"></i>
+                            <span>Edit Data</span>
+                        </button>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-full bg-bamboo/10 flex items-center justify-center text-bamboo overflow-hidden flex-shrink-0">
+                            <img id="admin-wali-foto" src="https://placehold.co/100/1e4620/d4af37?text=WK" class="w-full h-full object-cover">
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-400 uppercase tracking-wider font-sans">Wali Kelas Saat Ini</p>
+                            <p id="admin-wali-nama" class="font-serif font-medium text-sumi">Belum diisi</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Musik Latar Administration -->
             <div class="max-w-7xl w-full mx-auto mt-8">
                 <div class="bg-white p-6 rounded-md shadow-sm border border-gray-200">
@@ -756,6 +816,7 @@ body.intro-locked {
         let kegiatanData = [];
         let siswaData = [];
         let piketData = [];
+        let waliKelasData = null;
         let currentActiveKegiatanFilter = "Semua";
         let editTargetType = ""; 
         let editTargetId = null;
@@ -880,6 +941,14 @@ body.intro-locked {
             await loadKegiatan();
             await loadPiket();
             await loadMusik();
+            await loadWaliKelas();
+
+            // Realtime: setiap ada perubahan data wali kelas, muat ulang otomatis
+            supabase.channel('public:wali_kelas')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'wali_kelas' }, () => {
+                    loadWaliKelas();
+                })
+                .subscribe();
 
             // Realtime: setiap ada musik latar baru diunggah, muat ulang otomatis
             supabase.channel('public:musik')
@@ -976,6 +1045,49 @@ body.intro-locked {
                 if (namaLabel) namaLabel.innerText = musikData.nama_file || "Musik latar";
             } else {
                 if (namaLabel) namaLabel.innerText = "Belum ada musik diunggah";
+            }
+        }
+
+        async function loadWaliKelas() {
+            const { data, error } = await supabase
+                .from('wali_kelas')
+                .select('*')
+                .eq('id', 1)
+                .maybeSingle();
+
+            if (error) {
+                console.error("Error reading wali_kelas table:", error);
+                return;
+            }
+
+            waliKelasData = data || null;
+            renderWaliKelas();
+        }
+
+        function renderWaliKelas() {
+            const namaEl = document.getElementById('wali-nama');
+            const jabatanEl = document.getElementById('wali-jabatan');
+            const fotoEl = document.getElementById('wali-foto');
+            const kutipanEl = document.getElementById('wali-kutipan');
+            const adminNamaEl = document.getElementById('admin-wali-nama');
+            const adminFotoEl = document.getElementById('admin-wali-foto');
+
+            if (waliKelasData && waliKelasData.nama) {
+                namaEl.innerText = waliKelasData.nama;
+                jabatanEl.innerText = waliKelasData.jabatan || "Wali Kelas XII TKJ Take";
+                kutipanEl.innerText = waliKelasData.kutipan ? `"${waliKelasData.kutipan}"` : "";
+                kutipanEl.style.display = waliKelasData.kutipan ? "block" : "none";
+                if (waliKelasData.foto) {
+                    fotoEl.src = waliKelasData.foto;
+                    if (adminFotoEl) adminFotoEl.src = waliKelasData.foto;
+                }
+                if (adminNamaEl) adminNamaEl.innerText = waliKelasData.nama;
+            } else {
+                namaEl.innerText = "Menunggu Data Wali Kelas";
+                jabatanEl.innerText = "Wali Kelas XII TKJ Take";
+                kutipanEl.innerText = '"Kutipan atau pesan dari wali kelas akan tampil di sini setelah diisi melalui dashboard admin."';
+                kutipanEl.style.display = "block";
+                if (adminNamaEl) adminNamaEl.innerText = "Belum diisi";
             }
         }
 
@@ -1161,6 +1273,7 @@ body.intro-locked {
             renderKegiatan();
             renderSiswa();
             renderPiket();
+            renderWaliKelas();
             renderStats();
             renderAdminDashboard();
         }
@@ -1642,6 +1755,32 @@ body.intro-locked {
                         <button type="submit" class="px-5 py-2 bg-[#8B6914] text-white hover:bg-[#6b5010] rounded text-sm transition font-medium">Simpan</button>
                     </div>
                 `;
+            } else if (type === 'wali') {
+                title.innerText = 'Edit Data Wali Kelas';
+                const current = waliKelasData || { nama: '', jabatan: 'Wali Kelas XII TKJ Take', foto: '', kutipan: '' };
+
+                form.innerHTML = `
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Nama Lengkap</label>
+                        <input type="text" id="form-wali-nama" value="${current.nama || ''}" class="w-full p-2.5 border border-gray-200 rounded text-sm focus:border-bamboo focus:outline-none" placeholder="Contoh: Budi Santoso, S.Pd" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Jabatan</label>
+                        <input type="text" id="form-wali-jabatan" value="${current.jabatan || 'Wali Kelas XII TKJ Take'}" class="w-full p-2.5 border border-gray-200 rounded text-sm focus:border-bamboo focus:outline-none" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">URL Foto</label>
+                        <input type="url" id="form-wali-foto" value="${current.foto || ''}" class="w-full p-2.5 border border-gray-200 rounded text-sm focus:border-bamboo focus:outline-none" placeholder="Kosongkan jika ingin memakai placeholder">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Kutipan / Pesan (opsional)</label>
+                        <textarea id="form-wali-kutipan" class="w-full p-2.5 border border-gray-200 rounded text-sm focus:border-bamboo focus:outline-none" rows="3" placeholder="Pesan singkat dari wali kelas untuk siswa...">${current.kutipan || ''}</textarea>
+                    </div>
+                    <div class="pt-4 flex justify-end space-x-2">
+                        <button type="button" onclick="closeFormModal()" class="px-4 py-2 border border-gray-200 rounded text-sm hover:bg-gray-100 transition">Batal</button>
+                        <button type="submit" class="px-5 py-2 bg-bamboo text-white hover:bg-[#122B14] rounded text-sm transition font-medium">Simpan</button>
+                    </div>
+                `;
             }
         }
 
@@ -1717,6 +1856,18 @@ body.intro-locked {
                         triggerToast("Jadwal piket baru sukses ditambahkan!", "success");
                     }
                     await loadPiket();
+                } else if (editTargetType === 'wali') {
+                    const nama = document.getElementById('form-wali-nama').value;
+                    const jabatan = document.getElementById('form-wali-jabatan').value;
+                    const foto = document.getElementById('form-wali-foto').value;
+                    const kutipan = document.getElementById('form-wali-kutipan').value;
+
+                    const waliPayload = { id: 1, nama, jabatan, foto, kutipan, updated_at: new Date().toISOString() };
+
+                    const { error } = await supabase.from('wali_kelas').upsert(waliPayload);
+                    if (error) throw error;
+                    triggerToast("Data wali kelas sukses diperbarui di awan!", "success");
+                    await loadWaliKelas();
                 }
                 closeFormModal();
             } catch (err) {
