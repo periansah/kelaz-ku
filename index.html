@@ -263,6 +263,46 @@ body.intro-locked {
         .kegiatan-thumb {
             cursor: zoom-in;
         }
+
+        /* ============ LIKE BUTTON ============ */
+        .like-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255,255,255,0.95);
+            border: 1px solid rgba(0,0,0,0.08);
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #4E7041;
+            cursor: pointer;
+            transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+            user-select: none;
+        }
+        .like-btn:hover {
+            transform: translateY(-1px);
+            border-color: #D4AF37;
+        }
+        .like-btn:active {
+            transform: scale(0.92);
+        }
+        .like-btn.liked {
+            background: #1E4620;
+            color: #D4AF37;
+            border-color: #1E4620;
+        }
+        .like-btn i {
+            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .like-btn.pop i {
+            animation: likePop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes likePop {
+            0% { transform: scale(1); }
+            40% { transform: scale(1.4); }
+            100% { transform: scale(1); }
+        }
     </style>
 </head>
 <body class="washi-bg min-h-screen flex flex-col relative">
@@ -473,6 +513,10 @@ body.intro-locked {
                         <p id="wali-kutipan" class="text-gray-500 text-sm font-sans font-light leading-relaxed italic border-l-2 border-gold pl-4">
                             "Kutipan atau pesan dari wali kelas akan tampil di sini setelah diisi melalui dashboard admin."
                         </p>
+                        <button id="wali-like-btn" onclick="toggleLikeWali(this)" class="like-btn mt-5" title="Suka wali kelas ini">
+                            <i class="fa-solid fa-heart text-sm"></i>
+                            <span class="like-count" id="wali-like-count">0</span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -823,6 +867,11 @@ body.intro-locked {
         let musikData = null; // { url, nama_file }
         const MUSIK_BUCKET = "musik-latar"; // nama bucket Supabase Storage (buat manual & jadikan public)
 
+        // Nama key localStorage untuk menyimpan daftar item yang sudah di-like oleh browser ini
+        const LIKED_KEGIATAN_KEY = "take_liked_kegiatan_ids";
+        const LIKED_SISWA_KEY = "take_liked_siswa_ids";
+        const LIKED_WALI_KEY = "take_liked_wali_ids";
+
         // Urutan hari & lambang kanji untuk Jadwal Piket
         const dayOrder = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"];
         const dayKanji = { "Senin": "月", "Selasa": "火", "Rabu": "水", "Kamis": "木", "Jumat": "金", "Sabtu": "土", "Minggu": "日" };
@@ -966,7 +1015,9 @@ body.intro-locked {
 
             // Realtime: setiap ada perubahan di tabel kegiatan, muat ulang otomatis
             supabase.channel('public:kegiatan')
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'kegiatan' }, () => {
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'kegiatan' }, (payload) => {
+                    // Jika perubahan hanya update likes dari pengguna lain, cukup update angka di DOM
+                    // tanpa merender ulang seluruh grid (supaya animasi like tetap mulus)
                     loadKegiatan();
                 })
                 .subscribe();
@@ -1071,6 +1122,8 @@ body.intro-locked {
             const kutipanEl = document.getElementById('wali-kutipan');
             const adminNamaEl = document.getElementById('admin-wali-nama');
             const adminFotoEl = document.getElementById('admin-wali-foto');
+            const likeBtn = document.getElementById('wali-like-btn');
+            const likeCountEl = document.getElementById('wali-like-count');
 
             if (waliKelasData && waliKelasData.nama) {
                 namaEl.innerText = waliKelasData.nama;
@@ -1088,6 +1141,15 @@ body.intro-locked {
                 kutipanEl.innerText = '"Kutipan atau pesan dari wali kelas akan tampil di sini setelah diisi melalui dashboard admin."';
                 kutipanEl.style.display = "block";
                 if (adminNamaEl) adminNamaEl.innerText = "Belum diisi";
+            }
+
+            // Sinkronkan tombol like wali kelas (jumlah & status liked pengunjung ini)
+            if (likeCountEl) {
+                likeCountEl.innerText = waliKelasData ? (Number(waliKelasData.likes) || 0) : 0;
+            }
+            if (likeBtn) {
+                const likedByMe = waliKelasData ? isLikedByMe(LIKED_WALI_KEY, waliKelasData.id || 1) : false;
+                likeBtn.classList.toggle('liked', likedByMe);
             }
         }
 
@@ -1268,6 +1330,164 @@ body.intro-locked {
             await loadPiket();
         }
 
+        // ============ LIKE FEATURE HELPERS ============
+        // Mengambil daftar id yang sudah di-like oleh browser/pengunjung ini, untuk storageKey tertentu
+        function getLikedIds(storageKey) {
+            try {
+                const raw = localStorage.getItem(storageKey);
+                return raw ? JSON.parse(raw) : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function isLikedByMe(storageKey, id) {
+            return getLikedIds(storageKey).includes(String(id));
+        }
+
+        function saveLikedIds(storageKey, ids) {
+            try {
+                localStorage.setItem(storageKey, JSON.stringify(ids));
+            } catch (e) {
+                console.warn("Tidak bisa menyimpan status like ke localStorage:", e);
+            }
+        }
+
+        // Fungsi generik untuk toggle like/unlike sebuah item pada tabel Supabase tertentu.
+        // Menyimpan jumlah like ke kolom "likes" di Supabase, dan menandai status like pengunjung
+        // ini di localStorage (supaya tidak like berkali-kali dari sesi yang sama).
+        async function toggleLikeGeneric({ table, id, storageKey, currentLikes, onOptimisticUpdate, onError }) {
+            const likedIds = getLikedIds(storageKey);
+            const alreadyLiked = likedIds.includes(String(id));
+            const base = Number(currentLikes) || 0;
+            const newLikes = alreadyLiked ? Math.max(0, base - 1) : base + 1;
+
+            // Update tampilan secara optimis dulu supaya terasa instan
+            if (onOptimisticUpdate) onOptimisticUpdate(newLikes, !alreadyLiked);
+
+            // Simpan status like lokal
+            if (alreadyLiked) {
+                saveLikedIds(storageKey, likedIds.filter(x => x !== String(id)));
+            } else {
+                saveLikedIds(storageKey, [...likedIds, String(id)]);
+            }
+
+            // Simpan jumlah like ke Supabase
+            try {
+                const { error } = await supabase.from(table).update({ likes: newLikes }).eq('id', id);
+                if (error) throw error;
+            } catch (err) {
+                console.error(`Gagal menyimpan like ke tabel ${table}:`, err);
+                triggerToast("Gagal menyimpan like, coba lagi.", "error");
+                // Rollback tampilan & status lokal jika gagal disimpan
+                if (onError) onError(base, alreadyLiked);
+                if (alreadyLiked) {
+                    saveLikedIds(storageKey, [...getLikedIds(storageKey), String(id)]);
+                } else {
+                    saveLikedIds(storageKey, getLikedIds(storageKey).filter(x => x !== String(id)));
+                }
+            }
+        }
+
+        // Toggle like/unlike untuk sebuah kegiatan
+        async function toggleLikeKegiatan(id, btnEl) {
+            const item = kegiatanData.find(k => String(k.id) === String(id));
+            if (!item) return;
+
+            await toggleLikeGeneric({
+                table: 'kegiatan',
+                id,
+                storageKey: LIKED_KEGIATAN_KEY,
+                currentLikes: item.likes,
+                onOptimisticUpdate: (newLikes, liked) => {
+                    item.likes = newLikes;
+                    if (btnEl) {
+                        const countEl = btnEl.querySelector('.like-count');
+                        if (countEl) countEl.innerText = newLikes;
+                        btnEl.classList.toggle('liked', liked);
+                        btnEl.classList.remove('pop');
+                        void btnEl.offsetWidth;
+                        btnEl.classList.add('pop');
+                    }
+                },
+                onError: (oldLikes, wasLiked) => {
+                    item.likes = oldLikes;
+                    if (btnEl) {
+                        const countEl = btnEl.querySelector('.like-count');
+                        if (countEl) countEl.innerText = oldLikes;
+                        btnEl.classList.toggle('liked', wasLiked);
+                    }
+                }
+            });
+        }
+        window.toggleLikeKegiatan = toggleLikeKegiatan;
+
+        // Toggle like/unlike untuk seorang siswa
+        async function toggleLikeSiswa(id, btnEl) {
+            const item = siswaData.find(s => String(s.id) === String(id));
+            if (!item) return;
+
+            await toggleLikeGeneric({
+                table: 'siswa',
+                id,
+                storageKey: LIKED_SISWA_KEY,
+                currentLikes: item.likes,
+                onOptimisticUpdate: (newLikes, liked) => {
+                    item.likes = newLikes;
+                    if (btnEl) {
+                        const countEl = btnEl.querySelector('.like-count');
+                        if (countEl) countEl.innerText = newLikes;
+                        btnEl.classList.toggle('liked', liked);
+                        btnEl.classList.remove('pop');
+                        void btnEl.offsetWidth;
+                        btnEl.classList.add('pop');
+                    }
+                },
+                onError: (oldLikes, wasLiked) => {
+                    item.likes = oldLikes;
+                    if (btnEl) {
+                        const countEl = btnEl.querySelector('.like-count');
+                        if (countEl) countEl.innerText = oldLikes;
+                        btnEl.classList.toggle('liked', wasLiked);
+                    }
+                }
+            });
+        }
+        window.toggleLikeSiswa = toggleLikeSiswa;
+
+        // Toggle like/unlike untuk wali kelas (hanya satu data, id selalu 1)
+        async function toggleLikeWali(btnEl) {
+            if (!waliKelasData) return;
+            const id = waliKelasData.id || 1;
+
+            await toggleLikeGeneric({
+                table: 'wali_kelas',
+                id,
+                storageKey: LIKED_WALI_KEY,
+                currentLikes: waliKelasData.likes,
+                onOptimisticUpdate: (newLikes, liked) => {
+                    waliKelasData.likes = newLikes;
+                    if (btnEl) {
+                        const countEl = btnEl.querySelector('.like-count');
+                        if (countEl) countEl.innerText = newLikes;
+                        btnEl.classList.toggle('liked', liked);
+                        btnEl.classList.remove('pop');
+                        void btnEl.offsetWidth;
+                        btnEl.classList.add('pop');
+                    }
+                },
+                onError: (oldLikes, wasLiked) => {
+                    waliKelasData.likes = oldLikes;
+                    if (btnEl) {
+                        const countEl = btnEl.querySelector('.like-count');
+                        if (countEl) countEl.innerText = oldLikes;
+                        btnEl.classList.toggle('liked', wasLiked);
+                    }
+                }
+            });
+        }
+        window.toggleLikeWali = toggleLikeWali;
+
         // UI Render Functions
         function renderAll() {
             renderKegiatan();
@@ -1306,6 +1526,9 @@ body.intro-locked {
                                    item.kategori === 'Kebudayaan' ? 'bg-emerald-100 text-emerald-800' : 
                                    'bg-amber-100 text-amber-800';
 
+                const likeCount = Number(item.likes) || 0;
+                const likedByMe = isLikedByMe(LIKED_KEGIATAN_KEY, item.id);
+
                 const cardHTML = `
                     <div class="bg-white border border-gray-100 rounded-lg overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group h-full">
                         <div class="relative overflow-hidden aspect-video">
@@ -1313,6 +1536,10 @@ body.intro-locked {
                             <span class="absolute top-3 left-3 text-xs tracking-widest font-serif font-bold ${badgeColor} px-3 py-1.5 rounded-sm uppercase shadow-sm">
                                 ${item.kategori}
                             </span>
+                            <button onclick="toggleLikeKegiatan('${item.id}', this)" class="like-btn absolute bottom-3 right-3 z-10 ${likedByMe ? 'liked' : ''}" title="Suka kegiatan ini">
+                                <i class="fa-solid fa-heart text-sm"></i>
+                                <span class="like-count">${likeCount}</span>
+                            </button>
                         </div>
                         <div class="p-6 flex flex-col flex-grow">
                             <span class="text-xs text-gray-400 font-sans mb-1 flex items-center gap-1.5">
@@ -1361,6 +1588,9 @@ body.intro-locked {
                     ? 'border-bamboo text-bamboo bg-bamboo/5'
                     : 'border-gray-200 text-gray-500 bg-gray-50';
 
+                const likeCount = Number(siswa.likes) || 0;
+                const likedByMe = isLikedByMe(LIKED_SISWA_KEY, siswa.id);
+
                 const cardHTML = `
                     <div class="bg-white border border-gray-100 rounded-sm p-6 text-center shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col items-center gold-border-corner h-full">
                         <div class="relative mb-5">
@@ -1384,6 +1614,11 @@ body.intro-locked {
                                 "${siswa.haiku}"
                             </p>
                         </div>
+
+                        <button onclick="toggleLikeSiswa('${siswa.id}', this)" class="like-btn mt-4 ${likedByMe ? 'liked' : ''}" title="Suka siswa ini">
+                            <i class="fa-solid fa-heart text-sm"></i>
+                            <span class="like-count">${likeCount}</span>
+                        </button>
                     </div>
                 `;
                 container.innerHTML += cardHTML;
@@ -1583,6 +1818,7 @@ body.intro-locked {
                             <div class="truncate">
                                 <h4 class="font-serif font-bold text-sm text-sumi truncate">${k.judul}</h4>
                                 <span class="text-[10px] bg-bamboo/10 text-bamboo px-1.5 py-0.5 rounded">${k.kategori}</span>
+                                <span class="text-[10px] text-gray-400 ml-1"><i class="fa-solid fa-heart text-red-400"></i> ${Number(k.likes) || 0}</span>
                             </div>
                         </div>
                         <div class="flex items-center space-x-2">
@@ -1811,7 +2047,7 @@ body.intro-locked {
                         if (error) throw error;
                         triggerToast("Informasi siswa sukses diperbarui di awan!", "success");
                     } else {
-                        const { error } = await supabase.from('siswa').insert(siswaPayload);
+                        const { error } = await supabase.from('siswa').insert({ ...siswaPayload, likes: 0 });
                         if (error) throw error;
                         triggerToast("Siswa baru sukses didaftarkan!", "success");
                     }
@@ -1834,7 +2070,7 @@ body.intro-locked {
                         if (error) throw error;
                         triggerToast("Kegiatan sukses diperbarui di awan!", "success");
                     } else {
-                        const { error } = await supabase.from('kegiatan').insert(kegiatanPayload);
+                        const { error } = await supabase.from('kegiatan').insert({ ...kegiatanPayload, likes: 0 });
                         if (error) throw error;
                         triggerToast("Kegiatan baru sukses diunggah!", "success");
                     }
