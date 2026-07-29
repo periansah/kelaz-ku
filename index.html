@@ -377,6 +377,10 @@ body.intro-locked {
                 Siswa
                 <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-bamboo transition-all duration-300 group-hover:w-full"></span>
             </button>
+            <button onclick="scrollToSection('jadwal-pelajaran')" class="hover:text-bamboo transition duration-300 relative group py-1">
+                Jadwal Pelajaran
+                <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-bamboo transition-all duration-300 group-hover:w-full"></span>
+            </button>
             <button onclick="scrollToSection('piket')" class="hover:text-bamboo transition duration-300 relative group py-1">
                 Piket
                 <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-bamboo transition-all duration-300 group-hover:w-full"></span>
@@ -400,6 +404,7 @@ body.intro-locked {
         <button onclick="scrollToSection('kegiatan'); toggleMobileMenu()" class="hover:text-bamboo transition">Kegiatan</button>
         <button onclick="scrollToSection('wali-kelas'); toggleMobileMenu()" class="hover:text-bamboo transition">Wali Kelas</button>
         <button onclick="scrollToSection('siswa'); toggleMobileMenu()" class="hover:text-bamboo transition">Siswa</button>
+        <button onclick="scrollToSection('jadwal-pelajaran'); toggleMobileMenu()" class="hover:text-bamboo transition">Jadwal Pelajaran</button>
         <button onclick="scrollToSection('piket'); toggleMobileMenu()" class="hover:text-bamboo transition">Piket</button>
         <button onclick="openAdminPanel(); toggleMobileMenu()" class="bg-sumi text-white hover:bg-bamboo px-6 py-3 rounded-full font-sans text-base transition-all flex items-center space-x-2 shadow-md">
             <i class="fa-solid fa-yin-yang text-gold"></i>
@@ -555,6 +560,23 @@ body.intro-locked {
         </div>
     </section>
 
+    <section id="jadwal-pelajaran" class="py-20 px-6 md:px-12 relative z-10">
+        <div class="max-w-6xl mx-auto">
+            <!-- Header Section -->
+            <div class="text-center mb-16">
+                <span class="font-serif text-bamboo tracking-widest text-lg font-bold block mb-2">// 時 間 割</span>
+                <h2 class="font-serif text-3xl md:text-5xl font-bold text-sumi tracking-wider">Jadwal Pelajaran</h2>
+                <div class="w-16 h-1 bg-bamboo mx-auto mt-4 rounded-full"></div>
+                <p class="text-gray-500 mt-4 max-w-md mx-auto text-sm">Jikanwari (時間割) — susunan mata pelajaran Kelas XII TKJ Take dari Senin hingga Jum'at.</p>
+            </div>
+
+            <!-- Kartu jadwal pelajaran dirender otomatis dari database (bisa diubah lewat Dashboard Admin) -->
+            <div id="jadwal-pelajaran-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Dynamic Items -->
+            </div>
+        </div>
+    </section>
+
     <section id="piket" class="py-20 bg-white/50 border-y border-gray-100 px-6 md:px-12 relative z-10">
         <div class="max-w-6xl mx-auto">
             <!-- Header Section -->
@@ -660,6 +682,10 @@ body.intro-locked {
                         <i class="fa-solid fa-plus"></i>
                         <span>Piket Baru</span>
                     </button>
+                    <button onclick="openFormModal('jadwal')" class="bg-[#1E4620] hover:bg-[#122B14] text-white px-4 py-2 rounded-sm text-xs font-sans font-medium transition flex items-center space-x-2 shadow-sm">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Mapel Baru</span>
+                    </button>
                     <button onclick="logoutAdmin()" class="border border-sumi text-sumi hover:bg-sumi hover:text-white px-4 py-2 rounded-sm text-xs transition">
                         Keluar Panel
                     </button>
@@ -667,7 +693,7 @@ body.intro-locked {
             </div>
 
             <!-- Dashboard Body Workspace -->
-            <div class="max-w-7xl w-full mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 flex-grow">
+            <div class="max-w-7xl w-full mx-auto grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-8 flex-grow">
                 <!-- Activities Administration -->
                 <div class="bg-white p-6 rounded-md shadow-sm border border-gray-200">
                     <div class="flex justify-between items-center border-b border-gray-100 pb-4 mb-4">
@@ -679,6 +705,21 @@ body.intro-locked {
                     </div>
                     <!-- Mini Kegiatan List -->
                     <div id="admin-kegiatan-list" class="space-y-3 max-h-[550px] overflow-y-auto pr-2">
+                        <!-- Dynamic Items -->
+                    </div>
+                </div>
+
+                <!-- Jadwal Pelajaran Administration -->
+                <div class="bg-white p-6 rounded-md shadow-sm border border-gray-200">
+                    <div class="flex justify-between items-center border-b border-gray-100 pb-4 mb-4">
+                        <h3 class="font-serif text-lg font-bold text-sumi flex items-center space-x-2">
+                            <i class="fa-solid fa-book text-bamboo"></i>
+                            <span>Kelola Jadwal Pelajaran</span>
+                        </h3>
+                        <span id="admin-jadwal-badge" class="bg-gray-100 text-gray-700 text-xs px-2.5 py-1 rounded-full font-bold">0</span>
+                    </div>
+                    <!-- Mini Jadwal Pelajaran List -->
+                    <div id="admin-jadwal-list" class="space-y-3 max-h-[550px] overflow-y-auto pr-2">
                         <!-- Dynamic Items -->
                     </div>
                 </div>
@@ -839,8 +880,8 @@ body.intro-locked {
             <div class="pt-4 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
                 <p>&copy; 2026 XII TKJ Take. Dirancang oleh rizki periansah p.</p>
                 <div class="flex space-x-4 text-white">
-                    <a href="https://www.instagram.com/mybee3.87?igsh=dWkwcjY0azl0eHJr" class="hover:text-bamboo transition"><i class="fa-brands fa-instagram text-lg"></i></a>
-                    <a href="https://tiktok.com/@foulttyy0" class="hover:text-bamboo transition"><i class="fa-brands fa-tiktok text-lg"></i></a>
+                    <a href="#" class="hover:text-bamboo transition"><i class="fa-brands fa-instagram text-lg"></i></a>
+                    <a href="#" class="hover:text-bamboo transition"><i class="fa-brands fa-tiktok text-lg"></i></a>
                     <a href="#" class="hover:text-bamboo transition"><i class="fa-brands fa-youtube text-lg"></i></a>
                 </div>
             </div>
@@ -860,6 +901,7 @@ body.intro-locked {
         let kegiatanData = [];
         let siswaData = [];
         let piketData = [];
+        let jadwalPelajaranData = [];
         let waliKelasData = null;
         let currentActiveKegiatanFilter = "Semua";
         let editTargetType = ""; 
@@ -989,6 +1031,7 @@ body.intro-locked {
             await loadSiswa();
             await loadKegiatan();
             await loadPiket();
+            await loadJadwalPelajaran();
             await loadMusik();
             await loadWaliKelas();
 
@@ -1026,6 +1069,13 @@ body.intro-locked {
             supabase.channel('public:piket')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'piket' }, () => {
                     loadPiket();
+                })
+                .subscribe();
+
+            // Realtime: setiap ada perubahan di tabel jadwal_pelajaran, muat ulang otomatis
+            supabase.channel('public:jadwal_pelajaran')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'jadwal_pelajaran' }, () => {
+                    loadJadwalPelajaran();
                 })
                 .subscribe();
         }
@@ -1069,6 +1119,20 @@ body.intro-locked {
                 return;
             }
             piketData = data;
+            renderAll();
+        }
+
+        async function loadJadwalPelajaran() {
+            const { data, error } = await supabase.from('jadwal_pelajaran').select('*').order('created_at', { ascending: true });
+            if (error) {
+                console.error("Error reading jadwal_pelajaran table:", error);
+                return;
+            }
+            if (!data || data.length === 0) {
+                await seedDefaultJadwalPelajaran();
+                return;
+            }
+            jadwalPelajaranData = data;
             renderAll();
         }
 
@@ -1330,6 +1394,22 @@ body.intro-locked {
             await loadPiket();
         }
 
+        async function seedDefaultJadwalPelajaran() {
+            const initialJadwal = [
+                { hari: "Senin", mapel: "PAI, Seni Musik, PPKN, Bahasa Indonesia" },
+                { hari: "Selasa", mapel: "Bahasa Inggris, Olahraga, Bahasa Indonesia, Seni Musik, IPS" },
+                { hari: "Rabu", mapel: "PAI, IPA, Matematika, Informatika" },
+                { hari: "Kamis", mapel: "Bahasa Sunda, Olahraga, Bahasa Inggris, IPS, PPKN" },
+                { hari: "Jumat", mapel: "Matematika, IPA" }
+            ];
+            const { error } = await supabase.from('jadwal_pelajaran').insert(initialJadwal);
+            if (error) {
+                console.error("Error seeding jadwal_pelajaran:", error);
+                return;
+            }
+            await loadJadwalPelajaran();
+        }
+
         // ============ LIKE FEATURE HELPERS ============
         // Mengambil daftar id yang sudah di-like oleh browser/pengunjung ini, untuk storageKey tertentu
         function getLikedIds(storageKey) {
@@ -1493,6 +1573,7 @@ body.intro-locked {
             renderKegiatan();
             renderSiswa();
             renderPiket();
+            renderJadwalPelajaran();
             renderWaliKelas();
             renderStats();
             renderAdminDashboard();
@@ -1678,6 +1759,57 @@ body.intro-locked {
             });
         }
 
+        function renderJadwalPelajaran() {
+            const container = document.getElementById('jadwal-pelajaran-container');
+            if (!container) return;
+            container.innerHTML = "";
+
+            if (jadwalPelajaranData.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full text-center py-12">
+                        <i class="fa-solid fa-book text-gray-300 text-5xl mb-4"></i>
+                        <p class="font-serif italic text-gray-500">Jadwal pelajaran belum tersedia.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Urutkan berdasarkan urutan hari Senin - Minggu
+            const sorted = [...jadwalPelajaranData].sort((a, b) => {
+                const idxA = dayOrder.indexOf(a.hari);
+                const idxB = dayOrder.indexOf(b.hari);
+                return (idxA === -1 ? 99 : idxA) - (idxB === -1 ? 99 : idxB);
+            });
+
+            sorted.forEach(item => {
+                const mapelList = (item.mapel || "").split(",").map(m => m.trim()).filter(Boolean);
+                const listHTML = mapelList.map(m => `
+                    <li class="flex items-center text-sm font-sans text-sumi"><span class="w-1.5 h-1.5 rounded-full bg-gold mr-3 flex-shrink-0"></span>${m}</li>
+                `).join("") || '<li class="text-xs text-gray-400 italic">Belum ada mata pelajaran</li>';
+
+                const idxHari = dayOrder.indexOf(item.hari);
+                const hariKe = idxHari === -1 ? '-' : idxHari + 1;
+
+                const cardHTML = `
+                    <div class="bg-white border border-gray-100 rounded-lg overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col h-full gold-border-corner">
+                        <div class="bg-sumi px-6 py-5 flex items-center justify-between">
+                            <div>
+                                <span class="text-gold text-[10px] uppercase tracking-widest font-sans block mb-0.5">Hari Ke-${hariKe}</span>
+                                <h3 class="font-serif text-xl font-bold text-white">${item.hari}</h3>
+                            </div>
+                            <span class="font-serif text-3xl text-gold/70">${dayKanji[item.hari] || '曜'}</span>
+                        </div>
+                        <div class="p-6 flex flex-col flex-grow">
+                            <ul class="space-y-3">
+                                ${listHTML}
+                            </ul>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += cardHTML;
+            });
+        }
+
         // Event Handlers & Utility Functions
         function filterKegiatan(category) {
             currentActiveKegiatanFilter = category;
@@ -1806,6 +1938,7 @@ body.intro-locked {
             document.getElementById('admin-kegiatan-badge').innerText = kegiatanData.length;
             document.getElementById('admin-siswa-badge').innerText = siswaData.length;
             document.getElementById('admin-piket-badge').innerText = piketData.length;
+            document.getElementById('admin-jadwal-badge').innerText = jadwalPelajaranData.length;
 
             // Render Kegiatan Admin list
             const kList = document.getElementById('admin-kegiatan-list');
@@ -1873,6 +2006,34 @@ body.intro-locked {
                         <div class="flex items-center space-x-2">
                             <button onclick="editItem('piket', '${p.id}')" class="text-blue-600 hover:text-blue-800 p-1.5"><i class="fa-solid fa-pen-to-square"></i></button>
                             <button onclick="deleteItem('piket', '${p.id}')" class="text-red-600 hover:text-red-800 p-1.5"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Render Jadwal Pelajaran Admin list (diurutkan Senin - Minggu)
+            const jList = document.getElementById('admin-jadwal-list');
+            jList.innerHTML = "";
+            const sortedJadwal = [...jadwalPelajaranData].sort((a, b) => {
+                const idxA = dayOrder.indexOf(a.hari);
+                const idxB = dayOrder.indexOf(b.hari);
+                return (idxA === -1 ? 99 : idxA) - (idxB === -1 ? 99 : idxB);
+            });
+            sortedJadwal.forEach(j => {
+                jList.innerHTML += `
+                    <div class="flex items-center justify-between p-3 bg-gray-50 border border-gray-100 rounded hover:bg-white hover:shadow-sm transition">
+                        <div class="flex items-center space-x-3 overflow-hidden w-2/3">
+                            <div class="w-10 h-10 rounded bg-sumi flex items-center justify-center flex-shrink-0">
+                                <span class="font-serif text-gold text-sm">${dayKanji[j.hari] || '曜'}</span>
+                            </div>
+                            <div class="truncate">
+                                <h4 class="font-serif font-bold text-sm text-sumi truncate">${j.hari}</h4>
+                                <span class="text-[10px] text-gray-400 font-sans truncate block">${j.mapel}</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="editItem('jadwal', '${j.id}')" class="text-blue-600 hover:text-blue-800 p-1.5"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button onclick="deleteItem('jadwal', '${j.id}')" class="text-red-600 hover:text-red-800 p-1.5"><i class="fa-solid fa-trash"></i></button>
                         </div>
                     </div>
                 `;
@@ -1991,6 +2152,28 @@ body.intro-locked {
                         <button type="submit" class="px-5 py-2 bg-[#8B6914] text-white hover:bg-[#6b5010] rounded text-sm transition font-medium">Simpan</button>
                     </div>
                 `;
+            } else if (type === 'jadwal') {
+                title.innerText = id ? 'Edit Jadwal Pelajaran' : 'Tambah Jadwal Pelajaran';
+                const current = id ? jadwalPelajaranData.find(j => j.id === id) : { hari: 'Senin', mapel: '' };
+
+                const dayOptionsHTML = dayOrder.map(d => `<option value="${d}" ${current.hari === d ? 'selected' : ''}>${d}</option>`).join('');
+
+                form.innerHTML = `
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Hari</label>
+                        <select id="form-jadwal-hari" class="w-full p-2.5 border border-gray-200 rounded text-sm focus:border-bamboo focus:outline-none">
+                            ${dayOptionsHTML}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Mata Pelajaran</label>
+                        <textarea id="form-jadwal-mapel" class="w-full p-2.5 border border-gray-200 rounded text-sm focus:border-bamboo focus:outline-none" rows="3" placeholder="Pisahkan dengan koma, contoh: Matematika, IPA, Bahasa Indonesia" required>${current.mapel || ''}</textarea>
+                    </div>
+                    <div class="pt-4 flex justify-end space-x-2">
+                        <button type="button" onclick="closeFormModal()" class="px-4 py-2 border border-gray-200 rounded text-sm hover:bg-gray-100 transition">Batal</button>
+                        <button type="submit" class="px-5 py-2 bg-[#1E4620] text-white hover:bg-[#122B14] rounded text-sm transition font-medium">Simpan</button>
+                    </div>
+                `;
             } else if (type === 'wali') {
                 title.innerText = 'Edit Data Wali Kelas';
                 const current = waliKelasData || { nama: '', jabatan: 'Wali Kelas XII TKJ Take', foto: '', kutipan: '' };
@@ -2092,6 +2275,22 @@ body.intro-locked {
                         triggerToast("Jadwal piket baru sukses ditambahkan!", "success");
                     }
                     await loadPiket();
+                } else if (editTargetType === 'jadwal') {
+                    const hari = document.getElementById('form-jadwal-hari').value;
+                    const mapel = document.getElementById('form-jadwal-mapel').value;
+
+                    const jadwalPayload = { hari, mapel };
+
+                    if (editTargetId) {
+                        const { error } = await supabase.from('jadwal_pelajaran').update(jadwalPayload).eq('id', editTargetId);
+                        if (error) throw error;
+                        triggerToast("Jadwal pelajaran sukses diperbarui di awan!", "success");
+                    } else {
+                        const { error } = await supabase.from('jadwal_pelajaran').insert(jadwalPayload);
+                        if (error) throw error;
+                        triggerToast("Jadwal pelajaran baru sukses ditambahkan!", "success");
+                    }
+                    await loadJadwalPelajaran();
                 } else if (editTargetType === 'wali') {
                     const nama = document.getElementById('form-wali-nama').value;
                     const jabatan = document.getElementById('form-wali-jabatan').value;
@@ -2154,6 +2353,11 @@ body.intro-locked {
                         if (error) throw error;
                         triggerToast("Jadwal piket telah dihapus.", "success");
                         await loadPiket();
+                    } else if (type === 'jadwal') {
+                        const { error } = await supabase.from('jadwal_pelajaran').delete().eq('id', id);
+                        if (error) throw error;
+                        triggerToast("Jadwal pelajaran telah dihapus.", "success");
+                        await loadJadwalPelajaran();
                     }
                 } catch (err) {
                     console.error("Supabase delete error:", err);
